@@ -1,0 +1,18 @@
+{
+  "host": "db-02",
+  "description": "数据库节点 · 存在多项高风险偏差",
+  "files": [
+    {
+      "path": "/etc/ssh/sshd_config",
+      "content": "# db-02 /etc/ssh/sshd_config\nProtocol 2\nPort 2222\nPermitRootLogin yes\nPasswordAuthentication yes\nPermitEmptyPasswords no\nMaxAuthTries 6\nLoginGraceTime 120\nClientAliveInterval 0\nX11Forwarding yes\nAllowTcpForwarding yes\nCiphers aes128-cbc,3des-cbc,aes256-gcm@openssh.com\nMACs hmac-sha1,hmac-sha2-256-etm@openssh.com\nLogLevel INFO\n"
+    },
+    {
+      "path": "/etc/sysctl.conf",
+      "content": "# /etc/sysctl.conf\nnet.ipv4.ip_forward = 0\nnet.ipv4.conf.all.accept_source_route = 0\nnet.ipv4.conf.all.accept_redirects = 0\nnet.ipv4.conf.all.send_redirects = 0\nnet.ipv4.tcp_syncookies = 1\nnet.ipv4.conf.all.rp_filter = 0\nkernel.randomize_va_space = 1\nkernel.sysrq = 0\nfs.protected_hardlinks = 0\n"
+    },
+    {
+      "path": "/etc/sysctl.d/10-vendor.conf",
+      "content": "# tuned profile applied by the vendor image\nnet.ipv4.ip_forward = 1\nkernel.sysrq = 1\nnet.ipv4.tcp_syncookies = 1\nvm.swappiness = 10\n"
+    }
+  ]
+}

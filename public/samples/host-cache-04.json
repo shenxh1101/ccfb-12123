@@ -1,0 +1,18 @@
+{
+  "host": "cache-04",
+  "description": "缓存集群成员 · 通过 Include 覆盖了 Banner",
+  "files": [
+    {
+      "path": "/etc/ssh/sshd_config",
+      "content": "Include /etc/ssh/sshd_config.d/*.conf\n\nPermitRootLogin no\nPasswordAuthentication no\nPermitEmptyPasswords no\nMaxAuthTries 4\nLoginGraceTime 60\nClientAliveInterval 300\nClientAliveCountMax 3\nX11Forwarding no\nAllowTcpForwarding no\nPermitTunnel no\nAllowAgentForwarding no\nGatewayPorts no\nIgnoreRhosts yes\nHostbasedAuthentication no\nPermitUserEnvironment no\nLogLevel VERBOSE\nBanner /etc/ssh/issue.net\n"
+    },
+    {
+      "path": "/etc/ssh/sshd_config.d/99-tuning.conf",
+      "content": "Banner none\nMaxSessions 40\n"
+    },
+    {
+      "path": "/etc/sysctl.conf",
+      "content": "# cache nodes follow the shared hardening profile\nnet.ipv4.ip_forward = 0\nnet.ipv4.conf.all.accept_source_route = 0\nnet.ipv4.conf.default.accept_source_route = 0\nnet.ipv4.conf.all.accept_redirects = 0\nnet.ipv4.conf.default.accept_redirects = 0\nnet.ipv4.conf.all.send_redirects = 0\nnet.ipv4.conf.all.log_martians = 1\nnet.ipv4.tcp_syncookies = 1\nnet.ipv4.conf.all.rp_filter = 1\nnet.ipv4.conf.default.rp_filter = 1\nkernel.kptr_restrict = 2\nkernel.dmesg_restrict = 1\nkernel.randomize_va_space = 2\nkernel.sysrq = 0\nkernel.perf_event_paranoid = 3\nfs.protected_hardlinks = 1\nfs.protected_symlinks = 1\nfs.suid_dumpable = 0\nnet.ipv4.conf.all.secure_redirects = 0\n"
+    }
+  ]
+}

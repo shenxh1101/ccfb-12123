@@ -1,0 +1,42 @@
+{
+  "host": "web-01",
+  "description": "前端应用机 · 合规基线样板",
+  "files": [
+    {
+      "path": "/etc/ssh/sshd_config",
+      "content": "# web-01 /etc/ssh/sshd_config\nInclude /etc/ssh/sshd_config.d/*.conf\n\nPort 22\nPermitRootLogin no\nPasswordAuthentication no\nPermitEmptyPasswords no\nPubkeyAuthentication yes\nMaxAuthTries 3\nLoginGraceTime 30\nClientAliveInterval 300\nClientAliveCountMax 3\nX11Forwarding no\nAllowTcpForwarding no\nAllowAgentForwarding no\nPermitTunnel no\nGatewayPorts no\nIgnoreRhosts yes\nHostbasedAuthentication no\nPermitUserEnvironment no\nUsePAM yes\nLogLevel VERBOSE\nBanner /etc/ssh/issue.net\nCiphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com\nMACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com\nKexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512\n\nMatch User deploy\n  PasswordAuthentication yes\n"
+    },
+    {
+      "path": "/etc/ssh/sshd_config.d/60-ops.conf",
+      "content": "# 运维自定义\nMaxSessions 10\n"
+    },
+    {
+      "path": "/etc/nginx/nginx.conf",
+      "content": "user nginx;\nworker_processes auto;\npid /run/nginx.pid;\n\nevents {\n    worker_connections 2048;\n}\n\nhttp {\n    include /etc/nginx/mime.types;\n    default_type application/octet-stream;\n\n    server_tokens off;\n    client_max_body_size 16m;\n\n    ssl_protocols TLSv1.2 TLSv1.3;\n    ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;\n    ssl_prefer_server_ciphers on;\n    ssl_session_cache shared:SSL:10m;\n    ssl_session_tickets off;\n\n    include /etc/nginx/conf.d/*.conf;\n}\n"
+    },
+    {
+      "path": "/etc/nginx/mime.types",
+      "content": "types {\n    text/html html;\n    application/javascript js;\n}\n"
+    },
+    {
+      "path": "/etc/nginx/conf.d/shop.conf",
+      "content": "server {\n    listen 443 ssl;\n    server_name shop.example.com;\n\n    ssl_certificate /etc/nginx/certs/shop.crt;\n    ssl_certificate_key /etc/nginx/certs/shop.key;\n\n    add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;\n    add_header X-Content-Type-Options \"nosniff\" always;\n    add_header X-Frame-Options \"SAMEORIGIN\" always;\n    add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;\n    add_header Content-Security-Policy \"default-src 'self'; frame-ancestors 'self'\" always;\n\n    location / {\n        autoindex off;\n        proxy_pass http://127.0.0.1:8080;\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n    }\n\n    location /assets/ {\n        autoindex off;\n        root /var/www/assets;\n        expires 7d;\n    }\n}\n"
+    },
+    {
+      "path": "/etc/nginx/conf.d/shop-http.conf",
+      "content": "server {\n    listen 80;\n    server_name shop.example.com;\n    return 301 https://$host$request_uri;\n}\n"
+    },
+    {
+      "path": "/etc/nginx/certs/shop.crt",
+      "content": "-----BEGIN CERTIFICATE-----\nMIIDazCCAlOgAwIBAgIUZGVtby0web01000MA0GCSqGSIb3DQEBCwUA\n-----END CERTIFICATE-----\n"
+    },
+    {
+      "path": "/etc/nginx/certs/shop.key",
+      "content": "-----BEGIN CERTIFICATE-----\nMIIDazCCAlOgAwIBAgIUZGVtby0web01000MA0GCSqGSIb3DQEBCwUA\n-----END CERTIFICATE-----\n"
+    },
+    {
+      "path": "/etc/sysctl.conf",
+      "content": "net.ipv4.ip_forward = 0\nnet.ipv4.conf.all.accept_source_route = 0\nnet.ipv4.conf.default.accept_source_route = 0\nnet.ipv4.conf.all.accept_redirects = 0\nnet.ipv4.conf.default.accept_redirects = 0\nnet.ipv4.conf.all.send_redirects = 0\nnet.ipv4.conf.all.log_martians = 1\nnet.ipv4.tcp_syncookies = 1\nnet.ipv4.conf.all.rp_filter = 1\nnet.ipv4.conf.default.rp_filter = 1\nkernel.kptr_restrict = 2\nkernel.dmesg_restrict = 1\nkernel.randomize_va_space = 2\nkernel.sysrq = 0\nkernel.perf_event_paranoid = 3\nfs.protected_hardlinks = 1\nfs.protected_symlinks = 1\nfs.suid_dumpable = 0\nnet.ipv4.conf.all.secure_redirects = 0\n"
+    }
+  ]
+}

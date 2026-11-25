@@ -1,0 +1,5232 @@
+{
+  "schemaVersion": "1.0",
+  "generatedAt": "2026-11-24T15:18:44.578Z",
+  "tool": {
+    "name": "Config Baseline Console",
+    "version": "1.0.0"
+  },
+  "ruleSet": {
+    "name": "主机安全配置基线（SSH / Nginx / 内核参数）",
+    "version": 1,
+    "count": 55
+  },
+  "input": {
+    "hosts": 5,
+    "files": 27,
+    "bytes": 8362
+  },
+  "durationMs": 10,
+  "totals": {
+    "total": 275,
+    "pass": 160,
+    "fail": 64,
+    "warn": 1,
+    "skip": 50,
+    "error": 0,
+    "score": 67,
+    "bySeverity": {
+      "critical": {
+        "pass": 10,
+        "fail": 2,
+        "warn": 0,
+        "skip": 3,
+        "error": 0
+      },
+      "high": {
+        "pass": 38,
+        "fail": 15,
+        "warn": 0,
+        "skip": 12,
+        "error": 0
+      },
+      "medium": {
+        "pass": 67,
+        "fail": 26,
+        "warn": 0,
+        "skip": 17,
+        "error": 0
+      },
+      "low": {
+        "pass": 41,
+        "fail": 20,
+        "warn": 0,
+        "skip": 14,
+        "error": 0
+      },
+      "info": {
+        "pass": 4,
+        "fail": 1,
+        "warn": 1,
+        "skip": 4,
+        "error": 0
+      }
+    }
+  },
+  "hosts": [
+    {
+      "host": "web-01",
+      "origin": "demo",
+      "score": 100,
+      "summary": {
+        "total": 55,
+        "pass": 55,
+        "fail": 0,
+        "warn": 0,
+        "skip": 0,
+        "error": 0
+      },
+      "bySeverity": {
+        "critical": {
+          "pass": 3,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "high": {
+          "pass": 13,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "medium": {
+          "pass": 22,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "low": {
+          "pass": 15,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "info": {
+          "pass": 2,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        }
+      },
+      "configs": {
+        "sshd": {
+          "root": "/etc/ssh/sshd_config",
+          "files": [
+            "/etc/ssh/sshd_config",
+            "/etc/ssh/sshd_config.d/60-ops.conf"
+          ],
+          "statements": 25,
+          "issues": 0
+        },
+        "nginx": {
+          "root": "/etc/nginx/nginx.conf",
+          "files": [
+            "/etc/nginx/nginx.conf",
+            "/etc/nginx/mime.types",
+            "/etc/nginx/conf.d/shop-http.conf",
+            "/etc/nginx/conf.d/shop.conf"
+          ],
+          "statements": 40,
+          "issues": 0
+        },
+        "sysctl": {
+          "root": "/etc/sysctl.conf",
+          "files": [
+            "/etc/sysctl.conf"
+          ],
+          "statements": 19,
+          "issues": 0
+        }
+      },
+      "parseIssues": [],
+      "scanMs": 5,
+      "results": [
+        {
+          "ruleId": "SSH-001",
+          "title": "禁止 root 直接登录",
+          "category": "SSH 访问控制",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PermitRootLogin = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "将 /etc/ssh/sshd_config 中的 PermitRootLogin 设置为 no，改用普通账号登录后 sudo 提权。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 5,
+              "column": null,
+              "snippet": "PermitRootLogin no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-002",
+          "title": "禁用密码认证，仅允许公钥",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PasswordAuthentication = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PasswordAuthentication no，并确认用户已配置公钥，避免改后锁死登录。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 6,
+              "column": null,
+              "snippet": "PasswordAuthentication no",
+              "block": null,
+              "note": null
+            },
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 29,
+              "column": null,
+              "snippet": "PasswordAuthentication yes",
+              "block": "Match User deploy",
+              "note": "该 Match 块中的取值仅对匹配连接生效"
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-003",
+          "title": "禁止空口令登录",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PermitEmptyPasswords = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "显式设置 PermitEmptyPasswords no，防止空密码账号被远程登录。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 7,
+              "column": null,
+              "snippet": "PermitEmptyPasswords no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-001",
+          "title": "关闭 IPv4 转发",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.ip_forward = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.ip_forward = 0；若主机确需做路由/NAT，应改为通过防火墙策略单独放行。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 1,
+              "column": null,
+              "snippet": "net.ipv4.ip_forward = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-002",
+          "title": "拒绝源路由（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_source_route = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_source_route = 0，丢弃携带源路由选项的数据包。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 2,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_source_route = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-008",
+          "title": "开启 SYN Cookie",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.tcp_syncookies = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.tcp_syncookies = 1，抵御 SYN Flood。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 8,
+              "column": null,
+              "snippet": "net.ipv4.tcp_syncookies = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-009",
+          "title": "开启反向路径过滤（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.rp_filter = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.rp_filter = 1，丢弃源地址不可达的伪造报文。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 9,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.rp_filter = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-013",
+          "title": "开启地址空间随机化",
+          "category": "内核加固",
+          "severity": "high",
+          "status": "pass",
+          "message": "kernel.randomize_va_space = 2，符合要求",
+          "observed": "2",
+          "expected": "2",
+          "remediation": "设置 kernel.randomize_va_space = 2，启用完整的 ASLR。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 13,
+              "column": null,
+              "snippet": "kernel.randomize_va_space = 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-002",
+          "title": "仅启用 TLS 1.2 与 TLS 1.3",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "pass",
+          "message": "1 个 server 块的 ssl_protocols 合规",
+          "observed": "shop.example.com:443 [ssl]: TLSv1.2 TLSv1.3",
+          "expected": "TLSv1.2 | TLSv1.3",
+          "remediation": "设置 ssl_protocols TLSv1.2 TLSv1.3; 并移除 TLSv1/TLSv1.1。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-003",
+          "title": "禁用弱 TLS 套件",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "pass",
+          "message": "TLS 套件配置合规",
+          "observed": "合规",
+          "expected": "禁用 RC4, 3DES, DES-CBC3, MD5, NULL, EXPORT, aNULL, eNULL, AES128-SHA, AES256-SHA",
+          "remediation": "将 ssl_ciphers 收敛为 ECDHE + AEAD 套件，移除 CBC、RC4、3DES 与匿名套件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-007",
+          "title": "配置 HSTS 响应头",
+          "category": "代理安全头",
+          "severity": "high",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 Strict-Transport-Security",
+          "observed": "全部配置",
+          "expected": "Strict-Transport-Security 匹配 /max-age=\\d{8,}/",
+          "remediation": "在 HTTPS server 块添加 add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-013",
+          "title": "证书文件必须真实存在",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "pass",
+          "message": "ssl_certificate 引用的文件均存在",
+          "observed": "文件存在",
+          "expected": "ssl_certificate 指向真实存在且可读的文件",
+          "remediation": "修正 ssl_certificate 路径，确保证书文件位于配置引用的位置并可被 nginx 读取。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-004",
+          "title": "最大认证尝试次数不超过 4",
+          "category": "SSH 认证",
+          "severity": "high",
+          "status": "pass",
+          "message": "MaxAuthTries = 3，满足 <= 4",
+          "observed": "3",
+          "expected": "<= 4",
+          "remediation": "设置 MaxAuthTries 4（或更小），降低口令爆破成功的概率。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 9,
+              "column": null,
+              "snippet": "MaxAuthTries 3",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-013",
+          "title": "禁用非安全加密算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "pass",
+          "message": "Ciphers 未包含禁用算法",
+          "observed": "chacha20-poly1305@openssh.com, aes256-gcm@openssh.com, aes128-gcm@openssh.com",
+          "expected": "不包含 3des-cbc, aes128-cbc, aes192-cbc, aes256-cbc, arcfour, arcfour128, arcfour256, blowfish-cbc, cast128-cbc",
+          "remediation": "在 Ciphers 中移除 CBC/3DES/RC4/Blowfish 等弱算法，仅保留 chacha20-poly1305 与 AES-GCM。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 24,
+              "column": null,
+              "snippet": "Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-014",
+          "title": "禁用弱 MAC 算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "pass",
+          "message": "MACs 未包含禁用算法",
+          "observed": "hmac-sha2-512-etm@openssh.com, hmac-sha2-256-etm@openssh.com",
+          "expected": "不包含 hmac-md5, hmac-md5-96, hmac-sha1, hmac-sha1-96, hmac-ripemd160, umac-64@openssh.com",
+          "remediation": "在 MACs 中移除 MD5/SHA1/RIPEMD160，保留 ETM 模式的 SHA2 算法。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 25,
+              "column": null,
+              "snippet": "MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-015",
+          "title": "禁用基于 SHA1 的密钥交换",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "pass",
+          "message": "KexAlgorithms 未包含禁用算法",
+          "observed": "curve25519-sha256, curve25519-sha256@libssh.org, diffie-hellman-group16-sha512",
+          "expected": "不包含 diffie-hellman-group1-sha1, diffie-hellman-group14-sha1, diffie-hellman-group-exchange-sha1, gss-group1-sha1",
+          "remediation": "在 KexAlgorithms 中移除 SHA1 系列，保留 curve25519-sha256 与 group16-sha512。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 26,
+              "column": null,
+              "snippet": "KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-003",
+          "title": "拒绝源路由（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.accept_source_route = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_source_route = 0，使新网卡默认继承安全值。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 3,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.accept_source_route = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-004",
+          "title": "拒绝 ICMP 重定向（all）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_redirects = 0，防止路由表被 ICMP 重定向篡改。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 4,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-006",
+          "title": "不发送 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.send_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.send_redirects = 0，避免主机向同网段通告错误路由。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 6,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.send_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-010",
+          "title": "开启反向路径过滤（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.rp_filter = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.default.rp_filter = 1。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 10,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.rp_filter = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-011",
+          "title": "隐藏内核符号地址",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.kptr_restrict = 2，符合要求",
+          "observed": "2",
+          "expected": "2",
+          "remediation": "设置 kernel.kptr_restrict = 2，普通用户读取 /proc/kallsyms 时显示为 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 11,
+              "column": null,
+              "snippet": "kernel.kptr_restrict = 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-012",
+          "title": "限制 dmesg 访问",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.dmesg_restrict = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 kernel.dmesg_restrict = 1，仅 root 可读取内核环形缓冲区。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 12,
+              "column": null,
+              "snippet": "kernel.dmesg_restrict = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-014",
+          "title": "禁用 SysRq 组合键",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.sysrq = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 kernel.sysrq = 0，防止控制台按键触发危险的内核操作。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 14,
+              "column": null,
+              "snippet": "kernel.sysrq = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-016",
+          "title": "启用硬链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "fs.protected_hardlinks = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 fs.protected_hardlinks = 1，防止针对他人文件的硬链接攻击。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 16,
+              "column": null,
+              "snippet": "fs.protected_hardlinks = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-017",
+          "title": "启用符号链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "fs.protected_symlinks = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 fs.protected_symlinks = 1，防止 /tmp 下的符号链接攻击。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 17,
+              "column": null,
+              "snippet": "fs.protected_symlinks = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-001",
+          "title": "关闭 server_tokens 版本泄露",
+          "category": "代理指纹",
+          "severity": "medium",
+          "status": "pass",
+          "message": "2 个 server 块的 server_tokens 合规",
+          "observed": "shop.example.com:80: off；shop.example.com:443 [ssl]: off",
+          "expected": "off",
+          "remediation": "在 http 或 server 块设置 server_tokens off，隐藏 nginx 版本号。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-008",
+          "title": "配置 X-Frame-Options 防点击劫持",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 X-Frame-Options",
+          "observed": "全部配置",
+          "expected": "X-Frame-Options 匹配 /^(SAMEORIGIN|DENY)$/",
+          "remediation": "添加 add_header X-Frame-Options \"SAMEORIGIN\" always;（需要跨域嵌套时改用 DENY + CSP frame-ancestors）。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-009",
+          "title": "配置 X-Content-Type-Options",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 X-Content-Type-Options",
+          "observed": "全部配置",
+          "expected": "X-Content-Type-Options 匹配 /^nosniff$/",
+          "remediation": "添加 add_header X-Content-Type-Options \"nosniff\" always;，阻止浏览器 MIME 嗅探。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-012",
+          "title": "关闭目录自动索引",
+          "category": "代理访问控制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "2 个 location 块配置合规",
+          "observed": "合规",
+          "expected": "autoindex off",
+          "remediation": "在所有 location 中设置 autoindex off，防止目录内容被枚举。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-005",
+          "title": "登录宽限时间不超过 60 秒",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "LoginGraceTime = 30，满足 <= 60",
+          "observed": "30",
+          "expected": "<= 60",
+          "remediation": "设置 LoginGraceTime 30（不超过 60），缩短未认证连接占用时间。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 10,
+              "column": null,
+              "snippet": "LoginGraceTime 30",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-009",
+          "title": "禁用 X11 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "X11Forwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 X11Forwarding no，避免通过 SSH 隧道转发图形界面。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 13,
+              "column": null,
+              "snippet": "X11Forwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-010",
+          "title": "禁用 TCP 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "AllowTcpForwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 AllowTcpForwarding no，防止服务器被用作内网跳板。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 14,
+              "column": null,
+              "snippet": "AllowTcpForwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-011",
+          "title": "禁用 SSH 隧道",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "PermitTunnel = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PermitTunnel no，禁止 tun/tap 设备转发。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 16,
+              "column": null,
+              "snippet": "PermitTunnel no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-012",
+          "title": "禁用 Agent 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "AllowAgentForwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 AllowAgentForwarding no，避免攻击者复用已转发的 ssh-agent 凭证。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 15,
+              "column": null,
+              "snippet": "AllowAgentForwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-018",
+          "title": "禁用基于主机的认证",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "HostbasedAuthentication = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 HostbasedAuthentication no，避免依赖可伪造的主机信任关系。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 19,
+              "column": null,
+              "snippet": "HostbasedAuthentication no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-019",
+          "title": "忽略 .rhosts 信任文件",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "IgnoreRhosts = yes，符合要求",
+          "observed": "yes",
+          "expected": "yes",
+          "remediation": "设置 IgnoreRhosts yes，禁用基于 ~/.rhosts 与 /etc/hosts.equiv 的信任。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 18,
+              "column": null,
+              "snippet": "IgnoreRhosts yes",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-020",
+          "title": "禁止加载用户环境变量",
+          "category": "SSH 访问控制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "PermitUserEnvironment = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PermitUserEnvironment no，防止用户通过 ~/.ssh/environment 注入变量绕过限制。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 20,
+              "column": null,
+              "snippet": "PermitUserEnvironment no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-022",
+          "title": "网关端口保持默认关闭",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "GatewayPorts = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 GatewayPorts no，避免远程转发端口监听在 0.0.0.0。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 17,
+              "column": null,
+              "snippet": "GatewayPorts no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-005",
+          "title": "拒绝 ICMP 重定向（default）",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.accept_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_redirects = 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 5,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.accept_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-007",
+          "title": "记录异常源地址数据包",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.log_martians = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.log_martians = 1，记录不可路由源地址的报文。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 7,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.log_martians = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-015",
+          "title": "限制 perf 事件访问",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "pass",
+          "message": "kernel.perf_event_paranoid = 3，满足 >= 2",
+          "observed": "3",
+          "expected": ">= 2",
+          "remediation": "设置 kernel.perf_event_paranoid >= 2，限制非特权用户使用性能计数器。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 15,
+              "column": null,
+              "snippet": "kernel.perf_event_paranoid = 3",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-018",
+          "title": "禁用 SUID 进程核心转储",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "pass",
+          "message": "fs.suid_dumpable = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 fs.suid_dumpable = 0，避免 SUID 进程内存被写入 core 文件。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 18,
+              "column": null,
+              "snippet": "fs.suid_dumpable = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-019",
+          "title": "不接受安全 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.secure_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.secure_redirects = 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 19,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.secure_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-004",
+          "title": "优先使用服务端套件顺序",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "pass",
+          "message": "1 个 server 块的 ssl_prefer_server_ciphers 合规",
+          "observed": "shop.example.com:443 [ssl]: on",
+          "expected": "on",
+          "remediation": "设置 ssl_prefer_server_ciphers on;，由服务端决定协商的套件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-005",
+          "title": "关闭 TLS 会话票据",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "pass",
+          "message": "1 个 server 块的 ssl_session_tickets 合规",
+          "observed": "shop.example.com:443 [ssl]: off",
+          "expected": "off",
+          "remediation": "设置 ssl_session_tickets off;，避免票据密钥泄露导致会话可被解密。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-010",
+          "title": "配置内容安全策略 CSP",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 Content-Security-Policy",
+          "observed": "全部配置",
+          "expected": "Content-Security-Policy 匹配 /default-src/",
+          "remediation": "添加包含 default-src 'self' 与 frame-ancestors 的 Content-Security-Policy。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-011",
+          "title": "配置 Referrer-Policy",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 Referrer-Policy",
+          "observed": "全部配置",
+          "expected": "Referrer-Policy 匹配 /^(strict-origin-when-cross-origin|no-referrer|strict-origin)$/",
+          "remediation": "添加 add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;，避免泄露完整 URL。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-006",
+          "title": "ClientAliveInterval 不超过 300 秒",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveInterval = 300，满足 <= 300",
+          "observed": "300",
+          "expected": "<= 300",
+          "remediation": "设置 ClientAliveInterval 300，使空闲会话在 5 分钟后被探测并回收。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 11,
+              "column": null,
+              "snippet": "ClientAliveInterval 300",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-007",
+          "title": "ClientAliveInterval 必须启用",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveInterval = 300，满足 > 0",
+          "observed": "300",
+          "expected": "> 0",
+          "remediation": "ClientAliveInterval 为 0 表示关闭空闲探测，应设置为非零值（如 300）。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 11,
+              "column": null,
+              "snippet": "ClientAliveInterval 300",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-008",
+          "title": "ClientAliveCountMax 不超过 3",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveCountMax = 3，满足 <= 3",
+          "observed": "3",
+          "expected": "<= 3",
+          "remediation": "设置 ClientAliveCountMax 3，与探测间隔配合在约 15 分钟内断开僵死会话。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 12,
+              "column": null,
+              "snippet": "ClientAliveCountMax 3",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-016",
+          "title": "配置登录警告 Banner",
+          "category": "SSH 访问控制",
+          "severity": "low",
+          "status": "pass",
+          "message": "Banner = /etc/ssh/issue.net，符合要求",
+          "observed": "/etc/ssh/issue.net",
+          "expected": "^(?!(none|NONE)$).+",
+          "remediation": "设置 Banner /etc/ssh/issue.net，在认证前展示经授权的访问声明；Banner none 等于关闭提示。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 23,
+              "column": null,
+              "snippet": "Banner /etc/ssh/issue.net",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-017",
+          "title": "日志级别为 VERBOSE 或更高",
+          "category": "SSH 审计",
+          "severity": "low",
+          "status": "pass",
+          "message": "LogLevel = VERBOSE，符合要求",
+          "observed": "VERBOSE",
+          "expected": "VERBOSE | INFO | DEBUG | DEBUG1 | DEBUG2 | DEBUG3",
+          "remediation": "设置 LogLevel VERBOSE，记录登录用户与密钥指纹，便于审计追溯。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 22,
+              "column": null,
+              "snippet": "LogLevel VERBOSE",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-021",
+          "title": "限制单连接最大会话数",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "MaxSessions = 10，满足 <= 10",
+          "observed": "10",
+          "expected": "<= 10",
+          "remediation": "设置 MaxSessions 10 或更小，限制复用连接可打开的会话数量。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config.d/60-ops.conf",
+              "line": 2,
+              "column": null,
+              "snippet": "MaxSessions 10",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-006",
+          "title": "启用 TLS 会话缓存",
+          "category": "TLS 配置",
+          "severity": "info",
+          "status": "pass",
+          "message": "1 个 server 块的 ssl_session_cache 合规",
+          "observed": "shop.example.com:443 [ssl]: shared:SSL:10m",
+          "expected": "shared:",
+          "remediation": "设置 ssl_session_cache shared:SSL:10m;，减少 TLS 握手开销并限制内存占用。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-014",
+          "title": "conf.d 下不应存在未加载的文件",
+          "category": "配置整洁度",
+          "severity": "info",
+          "status": "pass",
+          "message": "/etc/nginx/conf.d 下无未加载的配置文件",
+          "observed": "",
+          "expected": "所有配置文件均被 include 引用",
+          "remediation": "将未使用的配置改名备份到 outside 目录或删除，避免运维误判当前生效配置。",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "host": "db-02",
+      "origin": "demo",
+      "score": 25.9,
+      "summary": {
+        "total": 55,
+        "pass": 9,
+        "fail": 32,
+        "warn": 0,
+        "skip": 14,
+        "error": 0
+      },
+      "bySeverity": {
+        "critical": {
+          "pass": 1,
+          "fail": 2,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "high": {
+          "pass": 3,
+          "fail": 6,
+          "warn": 0,
+          "skip": 4,
+          "error": 0
+        },
+        "medium": {
+          "pass": 3,
+          "fail": 15,
+          "warn": 0,
+          "skip": 4,
+          "error": 0
+        },
+        "low": {
+          "pass": 2,
+          "fail": 9,
+          "warn": 0,
+          "skip": 4,
+          "error": 0
+        },
+        "info": {
+          "pass": 0,
+          "fail": 0,
+          "warn": 0,
+          "skip": 2,
+          "error": 0
+        }
+      },
+      "configs": {
+        "sshd": {
+          "root": "/etc/ssh/sshd_config",
+          "files": [
+            "/etc/ssh/sshd_config"
+          ],
+          "statements": 13,
+          "issues": 0
+        },
+        "sysctl": {
+          "root": "/etc/sysctl.conf",
+          "files": [
+            "/etc/sysctl.d/10-vendor.conf",
+            "/etc/sysctl.conf"
+          ],
+          "statements": 13,
+          "issues": 0
+        }
+      },
+      "parseIssues": [
+        {
+          "file": "-",
+          "line": 0,
+          "severity": "info",
+          "message": "未发现反向代理配置文件，相关检查项已跳过"
+        }
+      ],
+      "scanMs": 2,
+      "results": [
+        {
+          "ruleId": "SSH-001",
+          "title": "禁止 root 直接登录",
+          "category": "SSH 访问控制",
+          "severity": "critical",
+          "status": "fail",
+          "message": "PermitRootLogin = yes，应为 no",
+          "observed": "yes",
+          "expected": "no",
+          "remediation": "将 /etc/ssh/sshd_config 中的 PermitRootLogin 设置为 no，改用普通账号登录后 sudo 提权。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 4,
+              "column": null,
+              "snippet": "PermitRootLogin yes",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-002",
+          "title": "禁用密码认证，仅允许公钥",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "fail",
+          "message": "PasswordAuthentication = yes，应为 no",
+          "observed": "yes",
+          "expected": "no",
+          "remediation": "设置 PasswordAuthentication no，并确认用户已配置公钥，避免改后锁死登录。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 5,
+              "column": null,
+              "snippet": "PasswordAuthentication yes",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-003",
+          "title": "禁止空口令登录",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PermitEmptyPasswords = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "显式设置 PermitEmptyPasswords no，防止空密码账号被远程登录。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 6,
+              "column": null,
+              "snippet": "PermitEmptyPasswords no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-009",
+          "title": "开启反向路径过滤（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "fail",
+          "message": "net.ipv4.conf.all.rp_filter = 0，应为 1",
+          "observed": "0",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.rp_filter = 1，丢弃源地址不可达的伪造报文。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 7,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.rp_filter = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-013",
+          "title": "开启地址空间随机化",
+          "category": "内核加固",
+          "severity": "high",
+          "status": "fail",
+          "message": "kernel.randomize_va_space = 1，应为 2",
+          "observed": "1",
+          "expected": "2",
+          "remediation": "设置 kernel.randomize_va_space = 2，启用完整的 ASLR。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 8,
+              "column": null,
+              "snippet": "kernel.randomize_va_space = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-004",
+          "title": "最大认证尝试次数不超过 4",
+          "category": "SSH 认证",
+          "severity": "high",
+          "status": "fail",
+          "message": "MaxAuthTries = 6，不满足 <= 4",
+          "observed": "6",
+          "expected": "<= 4",
+          "remediation": "设置 MaxAuthTries 4（或更小），降低口令爆破成功的概率。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 7,
+              "column": null,
+              "snippet": "MaxAuthTries 6",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-013",
+          "title": "禁用非安全加密算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "fail",
+          "message": "Ciphers 包含不安全算法 aes128-cbc, 3des-cbc",
+          "observed": "aes128-cbc, 3des-cbc, aes256-gcm@openssh.com",
+          "expected": "不包含 3des-cbc, aes128-cbc, aes192-cbc, aes256-cbc, arcfour, arcfour128, arcfour256, blowfish-cbc, cast128-cbc",
+          "remediation": "在 Ciphers 中移除 CBC/3DES/RC4/Blowfish 等弱算法，仅保留 chacha20-poly1305 与 AES-GCM。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 12,
+              "column": null,
+              "snippet": "Ciphers aes128-cbc,3des-cbc,aes256-gcm@openssh.com",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-014",
+          "title": "禁用弱 MAC 算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "fail",
+          "message": "MACs 包含不安全算法 hmac-sha1",
+          "observed": "hmac-sha1, hmac-sha2-256-etm@openssh.com",
+          "expected": "不包含 hmac-md5, hmac-md5-96, hmac-sha1, hmac-sha1-96, hmac-ripemd160, umac-64@openssh.com",
+          "remediation": "在 MACs 中移除 MD5/SHA1/RIPEMD160，保留 ETM 模式的 SHA2 算法。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 13,
+              "column": null,
+              "snippet": "MACs hmac-sha1,hmac-sha2-256-etm@openssh.com",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-015",
+          "title": "禁用基于 SHA1 的密钥交换",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "fail",
+          "message": "未显式配置 KexAlgorithms，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 KexAlgorithms 中移除 SHA1 系列，保留 curve25519-sha256 与 group16-sha512。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-001",
+          "title": "关闭 IPv4 转发",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.ip_forward = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.ip_forward = 0；若主机确需做路由/NAT，应改为通过防火墙策略单独放行。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 2,
+              "column": null,
+              "snippet": "net.ipv4.ip_forward = 0",
+              "block": null,
+              "note": null
+            },
+            {
+              "file": "/etc/sysctl.d/10-vendor.conf",
+              "line": 2,
+              "column": null,
+              "snippet": "net.ipv4.ip_forward = 1",
+              "block": null,
+              "note": "该值被后续同名设置覆盖，请清理重复项"
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-002",
+          "title": "拒绝源路由（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_source_route = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_source_route = 0，丢弃携带源路由选项的数据包。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 3,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_source_route = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-008",
+          "title": "开启 SYN Cookie",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.tcp_syncookies = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.tcp_syncookies = 1，抵御 SYN Flood。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 6,
+              "column": null,
+              "snippet": "net.ipv4.tcp_syncookies = 1",
+              "block": null,
+              "note": null
+            },
+            {
+              "file": "/etc/sysctl.d/10-vendor.conf",
+              "line": 4,
+              "column": null,
+              "snippet": "net.ipv4.tcp_syncookies = 1",
+              "block": null,
+              "note": "该值被后续同名设置覆盖，请清理重复项"
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-002",
+          "title": "仅启用 TLS 1.2 与 TLS 1.3",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ssl_protocols TLSv1.2 TLSv1.3; 并移除 TLSv1/TLSv1.1。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-003",
+          "title": "禁用弱 TLS 套件",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "将 ssl_ciphers 收敛为 ECDHE + AEAD 套件，移除 CBC、RC4、3DES 与匿名套件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-007",
+          "title": "配置 HSTS 响应头",
+          "category": "代理安全头",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 HTTPS server 块添加 add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-013",
+          "title": "证书文件必须真实存在",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "修正 ssl_certificate 路径，确保证书文件位于配置引用的位置并可被 nginx 读取。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-003",
+          "title": "拒绝源路由（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.default.accept_source_route，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_source_route = 0，使新网卡默认继承安全值。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-010",
+          "title": "开启反向路径过滤（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.default.rp_filter，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.default.rp_filter = 1。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-011",
+          "title": "隐藏内核符号地址",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 kernel.kptr_restrict，未显式加固",
+          "observed": "未设置",
+          "expected": "2",
+          "remediation": "设置 kernel.kptr_restrict = 2，普通用户读取 /proc/kallsyms 时显示为 0。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-012",
+          "title": "限制 dmesg 访问",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 kernel.dmesg_restrict，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 kernel.dmesg_restrict = 1，仅 root 可读取内核环形缓冲区。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-016",
+          "title": "启用硬链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "fs.protected_hardlinks = 0，应为 1",
+          "observed": "0",
+          "expected": "1",
+          "remediation": "设置 fs.protected_hardlinks = 1，防止针对他人文件的硬链接攻击。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 10,
+              "column": null,
+              "snippet": "fs.protected_hardlinks = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-017",
+          "title": "启用符号链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 fs.protected_symlinks，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 fs.protected_symlinks = 1，防止 /tmp 下的符号链接攻击。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-005",
+          "title": "登录宽限时间不超过 60 秒",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "fail",
+          "message": "LoginGraceTime = 120，不满足 <= 60",
+          "observed": "120",
+          "expected": "<= 60",
+          "remediation": "设置 LoginGraceTime 30（不超过 60），缩短未认证连接占用时间。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 8,
+              "column": null,
+              "snippet": "LoginGraceTime 120",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-009",
+          "title": "禁用 X11 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "fail",
+          "message": "X11Forwarding = yes，应为 no",
+          "observed": "yes",
+          "expected": "no",
+          "remediation": "设置 X11Forwarding no，避免通过 SSH 隧道转发图形界面。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 10,
+              "column": null,
+              "snippet": "X11Forwarding yes",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-010",
+          "title": "禁用 TCP 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "fail",
+          "message": "AllowTcpForwarding = yes，应为 no",
+          "observed": "yes",
+          "expected": "no",
+          "remediation": "设置 AllowTcpForwarding no，防止服务器被用作内网跳板。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 11,
+              "column": null,
+              "snippet": "AllowTcpForwarding yes",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-011",
+          "title": "禁用 SSH 隧道",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未显式配置 PermitTunnel，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 PermitTunnel no，禁止 tun/tap 设备转发。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-012",
+          "title": "禁用 Agent 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未显式配置 AllowAgentForwarding，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 AllowAgentForwarding no，避免攻击者复用已转发的 ssh-agent 凭证。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-018",
+          "title": "禁用基于主机的认证",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未显式配置 HostbasedAuthentication，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 HostbasedAuthentication no，避免依赖可伪造的主机信任关系。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-019",
+          "title": "忽略 .rhosts 信任文件",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未显式配置 IgnoreRhosts，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 IgnoreRhosts yes，禁用基于 ~/.rhosts 与 /etc/hosts.equiv 的信任。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-020",
+          "title": "禁止加载用户环境变量",
+          "category": "SSH 访问控制",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未显式配置 PermitUserEnvironment，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 PermitUserEnvironment no，防止用户通过 ~/.ssh/environment 注入变量绕过限制。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-022",
+          "title": "网关端口保持默认关闭",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未显式配置 GatewayPorts，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 GatewayPorts no，避免远程转发端口监听在 0.0.0.0。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-004",
+          "title": "拒绝 ICMP 重定向（all）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_redirects = 0，防止路由表被 ICMP 重定向篡改。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 4,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-006",
+          "title": "不发送 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.send_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.send_redirects = 0，避免主机向同网段通告错误路由。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 5,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.send_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-014",
+          "title": "禁用 SysRq 组合键",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.sysrq = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 kernel.sysrq = 0，防止控制台按键触发危险的内核操作。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 9,
+              "column": null,
+              "snippet": "kernel.sysrq = 0",
+              "block": null,
+              "note": null
+            },
+            {
+              "file": "/etc/sysctl.d/10-vendor.conf",
+              "line": 3,
+              "column": null,
+              "snippet": "kernel.sysrq = 1",
+              "block": null,
+              "note": "该值被后续同名设置覆盖，请清理重复项"
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-001",
+          "title": "关闭 server_tokens 版本泄露",
+          "category": "代理指纹",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 http 或 server 块设置 server_tokens off，隐藏 nginx 版本号。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-008",
+          "title": "配置 X-Frame-Options 防点击劫持",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "添加 add_header X-Frame-Options \"SAMEORIGIN\" always;（需要跨域嵌套时改用 DENY + CSP frame-ancestors）。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-009",
+          "title": "配置 X-Content-Type-Options",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "添加 add_header X-Content-Type-Options \"nosniff\" always;，阻止浏览器 MIME 嗅探。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-012",
+          "title": "关闭目录自动索引",
+          "category": "代理访问控制",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在所有 location 中设置 autoindex off，防止目录内容被枚举。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-005",
+          "title": "拒绝 ICMP 重定向（default）",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.default.accept_redirects，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_redirects = 0。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-007",
+          "title": "记录异常源地址数据包",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.all.log_martians，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.log_martians = 1，记录不可路由源地址的报文。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-015",
+          "title": "限制 perf 事件访问",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 kernel.perf_event_paranoid",
+          "observed": "未设置",
+          "expected": ">= 2",
+          "remediation": "设置 kernel.perf_event_paranoid >= 2，限制非特权用户使用性能计数器。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-018",
+          "title": "禁用 SUID 进程核心转储",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 fs.suid_dumpable，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 fs.suid_dumpable = 0，避免 SUID 进程内存被写入 core 文件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-019",
+          "title": "不接受安全 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.all.secure_redirects，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.secure_redirects = 0。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-007",
+          "title": "ClientAliveInterval 必须启用",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "fail",
+          "message": "ClientAliveInterval = 0，不满足 > 0",
+          "observed": "0",
+          "expected": "> 0",
+          "remediation": "ClientAliveInterval 为 0 表示关闭空闲探测，应设置为非零值（如 300）。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 9,
+              "column": null,
+              "snippet": "ClientAliveInterval 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-008",
+          "title": "ClientAliveCountMax 不超过 3",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "fail",
+          "message": "未配置 ClientAliveCountMax",
+          "observed": "未配置",
+          "expected": "<= 3",
+          "remediation": "设置 ClientAliveCountMax 3，与探测间隔配合在约 15 分钟内断开僵死会话。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-016",
+          "title": "配置登录警告 Banner",
+          "category": "SSH 访问控制",
+          "severity": "low",
+          "status": "fail",
+          "message": "未显式配置 Banner，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 Banner /etc/ssh/issue.net，在认证前展示经授权的访问声明；Banner none 等于关闭提示。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-021",
+          "title": "限制单连接最大会话数",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "fail",
+          "message": "未配置 MaxSessions",
+          "observed": "未配置",
+          "expected": "<= 10",
+          "remediation": "设置 MaxSessions 10 或更小，限制复用连接可打开的会话数量。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-006",
+          "title": "ClientAliveInterval 不超过 300 秒",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveInterval = 0，满足 <= 300",
+          "observed": "0",
+          "expected": "<= 300",
+          "remediation": "设置 ClientAliveInterval 300，使空闲会话在 5 分钟后被探测并回收。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 9,
+              "column": null,
+              "snippet": "ClientAliveInterval 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-017",
+          "title": "日志级别为 VERBOSE 或更高",
+          "category": "SSH 审计",
+          "severity": "low",
+          "status": "pass",
+          "message": "LogLevel = INFO，符合要求",
+          "observed": "INFO",
+          "expected": "VERBOSE | INFO | DEBUG | DEBUG1 | DEBUG2 | DEBUG3",
+          "remediation": "设置 LogLevel VERBOSE，记录登录用户与密钥指纹，便于审计追溯。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 14,
+              "column": null,
+              "snippet": "LogLevel INFO",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-004",
+          "title": "优先使用服务端套件顺序",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ssl_prefer_server_ciphers on;，由服务端决定协商的套件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-005",
+          "title": "关闭 TLS 会话票据",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ssl_session_tickets off;，避免票据密钥泄露导致会话可被解密。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-010",
+          "title": "配置内容安全策略 CSP",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "添加包含 default-src 'self' 与 frame-ancestors 的 Content-Security-Policy。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-011",
+          "title": "配置 Referrer-Policy",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "添加 add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;，避免泄露完整 URL。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-006",
+          "title": "启用 TLS 会话缓存",
+          "category": "TLS 配置",
+          "severity": "info",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ssl_session_cache shared:SSL:10m;，减少 TLS 握手开销并限制内存占用。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-014",
+          "title": "conf.d 下不应存在未加载的文件",
+          "category": "配置整洁度",
+          "severity": "info",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "将未使用的配置改名备份到 outside 目录或删除，避免运维误判当前生效配置。",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "host": "gw-03",
+      "origin": "demo",
+      "score": 22.6,
+      "summary": {
+        "total": 55,
+        "pass": 5,
+        "fail": 27,
+        "warn": 1,
+        "skip": 22,
+        "error": 0
+      },
+      "bySeverity": {
+        "critical": {
+          "pass": 0,
+          "fail": 0,
+          "warn": 0,
+          "skip": 3,
+          "error": 0
+        },
+        "high": {
+          "pass": 3,
+          "fail": 6,
+          "warn": 0,
+          "skip": 4,
+          "error": 0
+        },
+        "medium": {
+          "pass": 2,
+          "fail": 11,
+          "warn": 0,
+          "skip": 9,
+          "error": 0
+        },
+        "low": {
+          "pass": 0,
+          "fail": 9,
+          "warn": 0,
+          "skip": 6,
+          "error": 0
+        },
+        "info": {
+          "pass": 0,
+          "fail": 1,
+          "warn": 1,
+          "skip": 0,
+          "error": 0
+        }
+      },
+      "configs": {
+        "nginx": {
+          "root": "/etc/nginx/nginx.conf",
+          "files": [
+            "/etc/nginx/nginx.conf",
+            "/etc/nginx/conf.d/gateway.conf"
+          ],
+          "statements": 17,
+          "issues": 1
+        },
+        "sysctl": {
+          "root": "/etc/sysctl.conf",
+          "files": [
+            "/etc/sysctl.conf"
+          ],
+          "statements": 5,
+          "issues": 0
+        }
+      },
+      "parseIssues": [
+        {
+          "file": "/etc/nginx/nginx.conf",
+          "line": 8,
+          "severity": "warning",
+          "message": "include 未匹配到文件：/etc/nginx/mime.types"
+        },
+        {
+          "file": "-",
+          "line": 0,
+          "severity": "info",
+          "message": "未发现SSH 守护进程配置文件，相关检查项已跳过"
+        }
+      ],
+      "scanMs": 1,
+      "results": [
+        {
+          "ruleId": "SSH-001",
+          "title": "禁止 root 直接登录",
+          "category": "SSH 访问控制",
+          "severity": "critical",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "将 /etc/ssh/sshd_config 中的 PermitRootLogin 设置为 no，改用普通账号登录后 sudo 提权。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-002",
+          "title": "禁用密码认证，仅允许公钥",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 PasswordAuthentication no，并确认用户已配置公钥，避免改后锁死登录。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-003",
+          "title": "禁止空口令登录",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "显式设置 PermitEmptyPasswords no，防止空密码账号被远程登录。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-001",
+          "title": "关闭 IPv4 转发",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "fail",
+          "message": "net.ipv4.ip_forward = 1，应为 0",
+          "observed": "1",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.ip_forward = 0；若主机确需做路由/NAT，应改为通过防火墙策略单独放行。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 1,
+              "column": null,
+              "snippet": "net.ipv4.ip_forward = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-002",
+          "title": "拒绝源路由（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.all.accept_source_route，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_source_route = 0，丢弃携带源路由选项的数据包。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-009",
+          "title": "开启反向路径过滤（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.all.rp_filter，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.rp_filter = 1，丢弃源地址不可达的伪造报文。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-002",
+          "title": "仅启用 TLS 1.2 与 TLS 1.3",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] ssl_protocols TLSv1 TLSv1.1 TLSv1.2",
+          "observed": "gateway.example.com:443 [ssl]: TLSv1 TLSv1.1 TLSv1.2",
+          "expected": "TLSv1.2 | TLSv1.3",
+          "remediation": "设置 ssl_protocols TLSv1.2 TLSv1.3; 并移除 TLSv1/TLSv1.1。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/nginx.conf",
+              "line": 10,
+              "column": 5,
+              "snippet": "ssl_protocols TLSv1 TLSv1.1 TLSv1.2;",
+              "block": "http",
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-003",
+          "title": "禁用弱 TLS 套件",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] 含弱套件 RC4-SHA",
+          "observed": "gateway.example.com:443 [ssl] 含弱套件 RC4-SHA",
+          "expected": "禁用 RC4, 3DES, DES-CBC3, MD5, NULL, EXPORT, aNULL, eNULL, AES128-SHA, AES256-SHA",
+          "remediation": "将 ssl_ciphers 收敛为 ECDHE + AEAD 套件，移除 CBC、RC4、3DES 与匿名套件。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/nginx.conf",
+              "line": 11,
+              "column": 5,
+              "snippet": "ssl_ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA:RC4-SHA;",
+              "block": "http",
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-007",
+          "title": "配置 HSTS 响应头",
+          "category": "代理安全头",
+          "severity": "high",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] 缺少 Strict-Transport-Security",
+          "observed": "gateway.example.com:443 [ssl] 缺少 Strict-Transport-Security",
+          "expected": "Strict-Transport-Security 匹配 /max-age=\\d{8,}/",
+          "remediation": "在 HTTPS server 块添加 add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+          "evidence": [
+            {
+              "file": "/etc/nginx/conf.d/gateway.conf",
+              "line": 1,
+              "column": 1,
+              "snippet": "server {",
+              "block": "http",
+              "note": "server gateway.example.com:443 [ssl]：未添加响应头 Strict-Transport-Security"
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-008",
+          "title": "开启 SYN Cookie",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.tcp_syncookies = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.tcp_syncookies = 1，抵御 SYN Flood。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 2,
+              "column": null,
+              "snippet": "net.ipv4.tcp_syncookies = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-013",
+          "title": "开启地址空间随机化",
+          "category": "内核加固",
+          "severity": "high",
+          "status": "pass",
+          "message": "kernel.randomize_va_space = 2，符合要求",
+          "observed": "2",
+          "expected": "2",
+          "remediation": "设置 kernel.randomize_va_space = 2，启用完整的 ASLR。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 4,
+              "column": null,
+              "snippet": "kernel.randomize_va_space = 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-013",
+          "title": "证书文件必须真实存在",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "pass",
+          "message": "ssl_certificate 引用的文件均存在",
+          "observed": "文件存在",
+          "expected": "ssl_certificate 指向真实存在且可读的文件",
+          "remediation": "修正 ssl_certificate 路径，确保证书文件位于配置引用的位置并可被 nginx 读取。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-004",
+          "title": "最大认证尝试次数不超过 4",
+          "category": "SSH 认证",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 MaxAuthTries 4（或更小），降低口令爆破成功的概率。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-013",
+          "title": "禁用非安全加密算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 Ciphers 中移除 CBC/3DES/RC4/Blowfish 等弱算法，仅保留 chacha20-poly1305 与 AES-GCM。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-014",
+          "title": "禁用弱 MAC 算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 MACs 中移除 MD5/SHA1/RIPEMD160，保留 ETM 模式的 SHA2 算法。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-015",
+          "title": "禁用基于 SHA1 的密钥交换",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 KexAlgorithms 中移除 SHA1 系列，保留 curve25519-sha256 与 group16-sha512。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-003",
+          "title": "拒绝源路由（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.default.accept_source_route，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_source_route = 0，使新网卡默认继承安全值。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-006",
+          "title": "不发送 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.all.send_redirects，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.send_redirects = 0，避免主机向同网段通告错误路由。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-010",
+          "title": "开启反向路径过滤（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.default.rp_filter，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.default.rp_filter = 1。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-011",
+          "title": "隐藏内核符号地址",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "kernel.kptr_restrict = 0，应为 2",
+          "observed": "0",
+          "expected": "2",
+          "remediation": "设置 kernel.kptr_restrict = 2，普通用户读取 /proc/kallsyms 时显示为 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 3,
+              "column": null,
+              "snippet": "kernel.kptr_restrict = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-012",
+          "title": "限制 dmesg 访问",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 kernel.dmesg_restrict，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 kernel.dmesg_restrict = 1，仅 root 可读取内核环形缓冲区。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-014",
+          "title": "禁用 SysRq 组合键",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 kernel.sysrq，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 kernel.sysrq = 0，防止控制台按键触发危险的内核操作。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-016",
+          "title": "启用硬链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 fs.protected_hardlinks，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 fs.protected_hardlinks = 1，防止针对他人文件的硬链接攻击。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-017",
+          "title": "启用符号链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "fail",
+          "message": "未设置 fs.protected_symlinks，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 fs.protected_symlinks = 1，防止 /tmp 下的符号链接攻击。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-001",
+          "title": "关闭 server_tokens 版本泄露",
+          "category": "代理指纹",
+          "severity": "medium",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] server_tokens on",
+          "observed": "gateway.example.com:443 [ssl]: on",
+          "expected": "off",
+          "remediation": "在 http 或 server 块设置 server_tokens off，隐藏 nginx 版本号。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/nginx.conf",
+              "line": 9,
+              "column": 5,
+              "snippet": "server_tokens on;",
+              "block": "http",
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-008",
+          "title": "配置 X-Frame-Options 防点击劫持",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] 缺少 X-Frame-Options",
+          "observed": "gateway.example.com:443 [ssl] 缺少 X-Frame-Options",
+          "expected": "X-Frame-Options 匹配 /^(SAMEORIGIN|DENY)$/",
+          "remediation": "添加 add_header X-Frame-Options \"SAMEORIGIN\" always;（需要跨域嵌套时改用 DENY + CSP frame-ancestors）。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/conf.d/gateway.conf",
+              "line": 1,
+              "column": 1,
+              "snippet": "server {",
+              "block": "http",
+              "note": "server gateway.example.com:443 [ssl]：未添加响应头 X-Frame-Options"
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-012",
+          "title": "关闭目录自动索引",
+          "category": "代理访问控制",
+          "severity": "medium",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] location / autoindex on",
+          "observed": "gateway.example.com:443 [ssl] location / autoindex on",
+          "expected": "autoindex off",
+          "remediation": "在所有 location 中设置 autoindex off，防止目录内容被枚举。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/conf.d/gateway.conf",
+              "line": 11,
+              "column": 9,
+              "snippet": "autoindex on;",
+              "block": "http > server > location",
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-004",
+          "title": "拒绝 ICMP 重定向（all）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_redirects = 0，防止路由表被 ICMP 重定向篡改。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 5,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-009",
+          "title": "配置 X-Content-Type-Options",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 X-Content-Type-Options",
+          "observed": "全部配置",
+          "expected": "X-Content-Type-Options 匹配 /^nosniff$/",
+          "remediation": "添加 add_header X-Content-Type-Options \"nosniff\" always;，阻止浏览器 MIME 嗅探。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-005",
+          "title": "登录宽限时间不超过 60 秒",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 LoginGraceTime 30（不超过 60），缩短未认证连接占用时间。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-009",
+          "title": "禁用 X11 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 X11Forwarding no，避免通过 SSH 隧道转发图形界面。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-010",
+          "title": "禁用 TCP 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 AllowTcpForwarding no，防止服务器被用作内网跳板。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-011",
+          "title": "禁用 SSH 隧道",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 PermitTunnel no，禁止 tun/tap 设备转发。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-012",
+          "title": "禁用 Agent 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 AllowAgentForwarding no，避免攻击者复用已转发的 ssh-agent 凭证。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-018",
+          "title": "禁用基于主机的认证",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 HostbasedAuthentication no，避免依赖可伪造的主机信任关系。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-019",
+          "title": "忽略 .rhosts 信任文件",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 IgnoreRhosts yes，禁用基于 ~/.rhosts 与 /etc/hosts.equiv 的信任。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-020",
+          "title": "禁止加载用户环境变量",
+          "category": "SSH 访问控制",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 PermitUserEnvironment no，防止用户通过 ~/.ssh/environment 注入变量绕过限制。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-022",
+          "title": "网关端口保持默认关闭",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 GatewayPorts no，避免远程转发端口监听在 0.0.0.0。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-005",
+          "title": "拒绝 ICMP 重定向（default）",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.default.accept_redirects，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_redirects = 0。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-007",
+          "title": "记录异常源地址数据包",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.all.log_martians，未显式加固",
+          "observed": "未设置",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.log_martians = 1，记录不可路由源地址的报文。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-015",
+          "title": "限制 perf 事件访问",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 kernel.perf_event_paranoid",
+          "observed": "未设置",
+          "expected": ">= 2",
+          "remediation": "设置 kernel.perf_event_paranoid >= 2，限制非特权用户使用性能计数器。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-018",
+          "title": "禁用 SUID 进程核心转储",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 fs.suid_dumpable，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 fs.suid_dumpable = 0，避免 SUID 进程内存被写入 core 文件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-019",
+          "title": "不接受安全 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "fail",
+          "message": "未设置 net.ipv4.conf.all.secure_redirects，未显式加固",
+          "observed": "未设置",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.secure_redirects = 0。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-004",
+          "title": "优先使用服务端套件顺序",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] ssl_prefer_server_ciphers off",
+          "observed": "gateway.example.com:443 [ssl]: off",
+          "expected": "on",
+          "remediation": "设置 ssl_prefer_server_ciphers on;，由服务端决定协商的套件。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/nginx.conf",
+              "line": 12,
+              "column": 5,
+              "snippet": "ssl_prefer_server_ciphers off;",
+              "block": "http",
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-005",
+          "title": "关闭 TLS 会话票据",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] 未配置 ssl_session_tickets",
+          "observed": "gateway.example.com:443 [ssl]: (未配置)",
+          "expected": "off",
+          "remediation": "设置 ssl_session_tickets off;，避免票据密钥泄露导致会话可被解密。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/conf.d/gateway.conf",
+              "line": 1,
+              "column": 1,
+              "snippet": "server {",
+              "block": "http",
+              "note": "server gateway.example.com:443 [ssl]：未配置 ssl_session_tickets"
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-010",
+          "title": "配置内容安全策略 CSP",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] 缺少 Content-Security-Policy",
+          "observed": "gateway.example.com:443 [ssl] 缺少 Content-Security-Policy",
+          "expected": "Content-Security-Policy 匹配 /default-src/",
+          "remediation": "添加包含 default-src 'self' 与 frame-ancestors 的 Content-Security-Policy。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/conf.d/gateway.conf",
+              "line": 1,
+              "column": 1,
+              "snippet": "server {",
+              "block": "http",
+              "note": "server gateway.example.com:443 [ssl]：未添加响应头 Content-Security-Policy"
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-011",
+          "title": "配置 Referrer-Policy",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] 缺少 Referrer-Policy",
+          "observed": "gateway.example.com:443 [ssl] 缺少 Referrer-Policy",
+          "expected": "Referrer-Policy 匹配 /^(strict-origin-when-cross-origin|no-referrer|strict-origin)$/",
+          "remediation": "添加 add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;，避免泄露完整 URL。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/conf.d/gateway.conf",
+              "line": 1,
+              "column": 1,
+              "snippet": "server {",
+              "block": "http",
+              "note": "server gateway.example.com:443 [ssl]：未添加响应头 Referrer-Policy"
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-006",
+          "title": "ClientAliveInterval 不超过 300 秒",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ClientAliveInterval 300，使空闲会话在 5 分钟后被探测并回收。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-007",
+          "title": "ClientAliveInterval 必须启用",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "ClientAliveInterval 为 0 表示关闭空闲探测，应设置为非零值（如 300）。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-008",
+          "title": "ClientAliveCountMax 不超过 3",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ClientAliveCountMax 3，与探测间隔配合在约 15 分钟内断开僵死会话。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-016",
+          "title": "配置登录警告 Banner",
+          "category": "SSH 访问控制",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 Banner /etc/ssh/issue.net，在认证前展示经授权的访问声明；Banner none 等于关闭提示。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-017",
+          "title": "日志级别为 VERBOSE 或更高",
+          "category": "SSH 审计",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 LogLevel VERBOSE，记录登录用户与密钥指纹，便于审计追溯。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-021",
+          "title": "限制单连接最大会话数",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入SSH 守护进程配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 MaxSessions 10 或更小，限制复用连接可打开的会话数量。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-006",
+          "title": "启用 TLS 会话缓存",
+          "category": "TLS 配置",
+          "severity": "info",
+          "status": "fail",
+          "message": "gateway.example.com:443 [ssl] 未配置 ssl_session_cache",
+          "observed": "gateway.example.com:443 [ssl]: (未配置)",
+          "expected": "shared:",
+          "remediation": "设置 ssl_session_cache shared:SSL:10m;，减少 TLS 握手开销并限制内存占用。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/conf.d/gateway.conf",
+              "line": 1,
+              "column": 1,
+              "snippet": "server {",
+              "block": "http",
+              "note": "server gateway.example.com:443 [ssl]：未配置 ssl_session_cache"
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-014",
+          "title": "conf.d 下不应存在未加载的文件",
+          "category": "配置整洁度",
+          "severity": "info",
+          "status": "warn",
+          "message": "/etc/nginx/conf.d 下存在未通过 include 加载的配置文件",
+          "observed": "/etc/nginx/conf.d/legacy.conf.disabled",
+          "expected": "所有配置文件均被 include 引用",
+          "remediation": "将未使用的配置改名备份到 outside 目录或删除，避免运维误判当前生效配置。",
+          "evidence": [
+            {
+              "file": "/etc/nginx/conf.d/legacy.conf.disabled",
+              "line": 1,
+              "column": null,
+              "snippet": "legacy.conf.disabled",
+              "block": null,
+              "note": "该文件未被任何 include 指令引用"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "host": "cache-04",
+      "origin": "demo",
+      "score": 86.4,
+      "summary": {
+        "total": 55,
+        "pass": 36,
+        "fail": 5,
+        "warn": 0,
+        "skip": 14,
+        "error": 0
+      },
+      "bySeverity": {
+        "critical": {
+          "pass": 3,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "high": {
+          "pass": 6,
+          "fail": 3,
+          "warn": 0,
+          "skip": 4,
+          "error": 0
+        },
+        "medium": {
+          "pass": 18,
+          "fail": 0,
+          "warn": 0,
+          "skip": 4,
+          "error": 0
+        },
+        "low": {
+          "pass": 9,
+          "fail": 2,
+          "warn": 0,
+          "skip": 4,
+          "error": 0
+        },
+        "info": {
+          "pass": 0,
+          "fail": 0,
+          "warn": 0,
+          "skip": 2,
+          "error": 0
+        }
+      },
+      "configs": {
+        "sshd": {
+          "root": "/etc/ssh/sshd_config",
+          "files": [
+            "/etc/ssh/sshd_config",
+            "/etc/ssh/sshd_config.d/99-tuning.conf"
+          ],
+          "statements": 19,
+          "issues": 0
+        },
+        "sysctl": {
+          "root": "/etc/sysctl.conf",
+          "files": [
+            "/etc/sysctl.conf"
+          ],
+          "statements": 19,
+          "issues": 0
+        }
+      },
+      "parseIssues": [
+        {
+          "file": "-",
+          "line": 0,
+          "severity": "info",
+          "message": "未发现反向代理配置文件，相关检查项已跳过"
+        }
+      ],
+      "scanMs": 1,
+      "results": [
+        {
+          "ruleId": "SSH-001",
+          "title": "禁止 root 直接登录",
+          "category": "SSH 访问控制",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PermitRootLogin = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "将 /etc/ssh/sshd_config 中的 PermitRootLogin 设置为 no，改用普通账号登录后 sudo 提权。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 3,
+              "column": null,
+              "snippet": "PermitRootLogin no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-002",
+          "title": "禁用密码认证，仅允许公钥",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PasswordAuthentication = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PasswordAuthentication no，并确认用户已配置公钥，避免改后锁死登录。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 4,
+              "column": null,
+              "snippet": "PasswordAuthentication no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-003",
+          "title": "禁止空口令登录",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PermitEmptyPasswords = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "显式设置 PermitEmptyPasswords no，防止空密码账号被远程登录。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 5,
+              "column": null,
+              "snippet": "PermitEmptyPasswords no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-013",
+          "title": "禁用非安全加密算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "fail",
+          "message": "未显式配置 Ciphers，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 Ciphers 中移除 CBC/3DES/RC4/Blowfish 等弱算法，仅保留 chacha20-poly1305 与 AES-GCM。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-014",
+          "title": "禁用弱 MAC 算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "fail",
+          "message": "未显式配置 MACs，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 MACs 中移除 MD5/SHA1/RIPEMD160，保留 ETM 模式的 SHA2 算法。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-015",
+          "title": "禁用基于 SHA1 的密钥交换",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "fail",
+          "message": "未显式配置 KexAlgorithms，使用 OpenSSH 默认值",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 KexAlgorithms 中移除 SHA1 系列，保留 curve25519-sha256 与 group16-sha512。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-001",
+          "title": "关闭 IPv4 转发",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.ip_forward = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.ip_forward = 0；若主机确需做路由/NAT，应改为通过防火墙策略单独放行。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 2,
+              "column": null,
+              "snippet": "net.ipv4.ip_forward = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-002",
+          "title": "拒绝源路由（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_source_route = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_source_route = 0，丢弃携带源路由选项的数据包。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 3,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_source_route = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-008",
+          "title": "开启 SYN Cookie",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.tcp_syncookies = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.tcp_syncookies = 1，抵御 SYN Flood。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 9,
+              "column": null,
+              "snippet": "net.ipv4.tcp_syncookies = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-009",
+          "title": "开启反向路径过滤（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.rp_filter = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.rp_filter = 1，丢弃源地址不可达的伪造报文。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 10,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.rp_filter = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-013",
+          "title": "开启地址空间随机化",
+          "category": "内核加固",
+          "severity": "high",
+          "status": "pass",
+          "message": "kernel.randomize_va_space = 2，符合要求",
+          "observed": "2",
+          "expected": "2",
+          "remediation": "设置 kernel.randomize_va_space = 2，启用完整的 ASLR。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 14,
+              "column": null,
+              "snippet": "kernel.randomize_va_space = 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-004",
+          "title": "最大认证尝试次数不超过 4",
+          "category": "SSH 认证",
+          "severity": "high",
+          "status": "pass",
+          "message": "MaxAuthTries = 4，满足 <= 4",
+          "observed": "4",
+          "expected": "<= 4",
+          "remediation": "设置 MaxAuthTries 4（或更小），降低口令爆破成功的概率。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 6,
+              "column": null,
+              "snippet": "MaxAuthTries 4",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-002",
+          "title": "仅启用 TLS 1.2 与 TLS 1.3",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ssl_protocols TLSv1.2 TLSv1.3; 并移除 TLSv1/TLSv1.1。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-003",
+          "title": "禁用弱 TLS 套件",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "将 ssl_ciphers 收敛为 ECDHE + AEAD 套件，移除 CBC、RC4、3DES 与匿名套件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-007",
+          "title": "配置 HSTS 响应头",
+          "category": "代理安全头",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 HTTPS server 块添加 add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-013",
+          "title": "证书文件必须真实存在",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "修正 ssl_certificate 路径，确保证书文件位于配置引用的位置并可被 nginx 读取。",
+          "evidence": []
+        },
+        {
+          "ruleId": "KERN-003",
+          "title": "拒绝源路由（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.accept_source_route = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_source_route = 0，使新网卡默认继承安全值。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 4,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.accept_source_route = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-004",
+          "title": "拒绝 ICMP 重定向（all）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_redirects = 0，防止路由表被 ICMP 重定向篡改。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 5,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-006",
+          "title": "不发送 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.send_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.send_redirects = 0，避免主机向同网段通告错误路由。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 7,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.send_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-010",
+          "title": "开启反向路径过滤（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.rp_filter = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.default.rp_filter = 1。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 11,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.rp_filter = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-011",
+          "title": "隐藏内核符号地址",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.kptr_restrict = 2，符合要求",
+          "observed": "2",
+          "expected": "2",
+          "remediation": "设置 kernel.kptr_restrict = 2，普通用户读取 /proc/kallsyms 时显示为 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 12,
+              "column": null,
+              "snippet": "kernel.kptr_restrict = 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-012",
+          "title": "限制 dmesg 访问",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.dmesg_restrict = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 kernel.dmesg_restrict = 1，仅 root 可读取内核环形缓冲区。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 13,
+              "column": null,
+              "snippet": "kernel.dmesg_restrict = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-014",
+          "title": "禁用 SysRq 组合键",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.sysrq = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 kernel.sysrq = 0，防止控制台按键触发危险的内核操作。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 15,
+              "column": null,
+              "snippet": "kernel.sysrq = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-016",
+          "title": "启用硬链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "fs.protected_hardlinks = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 fs.protected_hardlinks = 1，防止针对他人文件的硬链接攻击。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 17,
+              "column": null,
+              "snippet": "fs.protected_hardlinks = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-017",
+          "title": "启用符号链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "fs.protected_symlinks = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 fs.protected_symlinks = 1，防止 /tmp 下的符号链接攻击。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 18,
+              "column": null,
+              "snippet": "fs.protected_symlinks = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-005",
+          "title": "登录宽限时间不超过 60 秒",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "LoginGraceTime = 60，满足 <= 60",
+          "observed": "60",
+          "expected": "<= 60",
+          "remediation": "设置 LoginGraceTime 30（不超过 60），缩短未认证连接占用时间。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 7,
+              "column": null,
+              "snippet": "LoginGraceTime 60",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-009",
+          "title": "禁用 X11 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "X11Forwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 X11Forwarding no，避免通过 SSH 隧道转发图形界面。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 10,
+              "column": null,
+              "snippet": "X11Forwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-010",
+          "title": "禁用 TCP 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "AllowTcpForwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 AllowTcpForwarding no，防止服务器被用作内网跳板。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 11,
+              "column": null,
+              "snippet": "AllowTcpForwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-011",
+          "title": "禁用 SSH 隧道",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "PermitTunnel = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PermitTunnel no，禁止 tun/tap 设备转发。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 12,
+              "column": null,
+              "snippet": "PermitTunnel no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-012",
+          "title": "禁用 Agent 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "AllowAgentForwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 AllowAgentForwarding no，避免攻击者复用已转发的 ssh-agent 凭证。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 13,
+              "column": null,
+              "snippet": "AllowAgentForwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-018",
+          "title": "禁用基于主机的认证",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "HostbasedAuthentication = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 HostbasedAuthentication no，避免依赖可伪造的主机信任关系。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 16,
+              "column": null,
+              "snippet": "HostbasedAuthentication no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-019",
+          "title": "忽略 .rhosts 信任文件",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "IgnoreRhosts = yes，符合要求",
+          "observed": "yes",
+          "expected": "yes",
+          "remediation": "设置 IgnoreRhosts yes，禁用基于 ~/.rhosts 与 /etc/hosts.equiv 的信任。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 15,
+              "column": null,
+              "snippet": "IgnoreRhosts yes",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-020",
+          "title": "禁止加载用户环境变量",
+          "category": "SSH 访问控制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "PermitUserEnvironment = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PermitUserEnvironment no，防止用户通过 ~/.ssh/environment 注入变量绕过限制。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 17,
+              "column": null,
+              "snippet": "PermitUserEnvironment no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-022",
+          "title": "网关端口保持默认关闭",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "GatewayPorts = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 GatewayPorts no，避免远程转发端口监听在 0.0.0.0。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 14,
+              "column": null,
+              "snippet": "GatewayPorts no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-001",
+          "title": "关闭 server_tokens 版本泄露",
+          "category": "代理指纹",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在 http 或 server 块设置 server_tokens off，隐藏 nginx 版本号。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-008",
+          "title": "配置 X-Frame-Options 防点击劫持",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "添加 add_header X-Frame-Options \"SAMEORIGIN\" always;（需要跨域嵌套时改用 DENY + CSP frame-ancestors）。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-009",
+          "title": "配置 X-Content-Type-Options",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "添加 add_header X-Content-Type-Options \"nosniff\" always;，阻止浏览器 MIME 嗅探。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-012",
+          "title": "关闭目录自动索引",
+          "category": "代理访问控制",
+          "severity": "medium",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "在所有 location 中设置 autoindex off，防止目录内容被枚举。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-016",
+          "title": "配置登录警告 Banner",
+          "category": "SSH 访问控制",
+          "severity": "low",
+          "status": "fail",
+          "message": "Banner = none，应为 ^(?!(none|NONE)$).+",
+          "observed": "none",
+          "expected": "^(?!(none|NONE)$).+",
+          "remediation": "设置 Banner /etc/ssh/issue.net，在认证前展示经授权的访问声明；Banner none 等于关闭提示。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config.d/99-tuning.conf",
+              "line": 1,
+              "column": null,
+              "snippet": "Banner none",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-021",
+          "title": "限制单连接最大会话数",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "fail",
+          "message": "MaxSessions = 40，不满足 <= 10",
+          "observed": "40",
+          "expected": "<= 10",
+          "remediation": "设置 MaxSessions 10 或更小，限制复用连接可打开的会话数量。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config.d/99-tuning.conf",
+              "line": 2,
+              "column": null,
+              "snippet": "MaxSessions 40",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-005",
+          "title": "拒绝 ICMP 重定向（default）",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.accept_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_redirects = 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 6,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.accept_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-007",
+          "title": "记录异常源地址数据包",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.log_martians = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.log_martians = 1，记录不可路由源地址的报文。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 8,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.log_martians = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-015",
+          "title": "限制 perf 事件访问",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "pass",
+          "message": "kernel.perf_event_paranoid = 3，满足 >= 2",
+          "observed": "3",
+          "expected": ">= 2",
+          "remediation": "设置 kernel.perf_event_paranoid >= 2，限制非特权用户使用性能计数器。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 16,
+              "column": null,
+              "snippet": "kernel.perf_event_paranoid = 3",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-018",
+          "title": "禁用 SUID 进程核心转储",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "pass",
+          "message": "fs.suid_dumpable = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 fs.suid_dumpable = 0，避免 SUID 进程内存被写入 core 文件。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 19,
+              "column": null,
+              "snippet": "fs.suid_dumpable = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-019",
+          "title": "不接受安全 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.secure_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.secure_redirects = 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 20,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.secure_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-006",
+          "title": "ClientAliveInterval 不超过 300 秒",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveInterval = 300，满足 <= 300",
+          "observed": "300",
+          "expected": "<= 300",
+          "remediation": "设置 ClientAliveInterval 300，使空闲会话在 5 分钟后被探测并回收。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 8,
+              "column": null,
+              "snippet": "ClientAliveInterval 300",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-007",
+          "title": "ClientAliveInterval 必须启用",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveInterval = 300，满足 > 0",
+          "observed": "300",
+          "expected": "> 0",
+          "remediation": "ClientAliveInterval 为 0 表示关闭空闲探测，应设置为非零值（如 300）。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 8,
+              "column": null,
+              "snippet": "ClientAliveInterval 300",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-008",
+          "title": "ClientAliveCountMax 不超过 3",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveCountMax = 3，满足 <= 3",
+          "observed": "3",
+          "expected": "<= 3",
+          "remediation": "设置 ClientAliveCountMax 3，与探测间隔配合在约 15 分钟内断开僵死会话。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 9,
+              "column": null,
+              "snippet": "ClientAliveCountMax 3",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-017",
+          "title": "日志级别为 VERBOSE 或更高",
+          "category": "SSH 审计",
+          "severity": "low",
+          "status": "pass",
+          "message": "LogLevel = VERBOSE，符合要求",
+          "observed": "VERBOSE",
+          "expected": "VERBOSE | INFO | DEBUG | DEBUG1 | DEBUG2 | DEBUG3",
+          "remediation": "设置 LogLevel VERBOSE，记录登录用户与密钥指纹，便于审计追溯。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 18,
+              "column": null,
+              "snippet": "LogLevel VERBOSE",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-004",
+          "title": "优先使用服务端套件顺序",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ssl_prefer_server_ciphers on;，由服务端决定协商的套件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-005",
+          "title": "关闭 TLS 会话票据",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ssl_session_tickets off;，避免票据密钥泄露导致会话可被解密。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-010",
+          "title": "配置内容安全策略 CSP",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "添加包含 default-src 'self' 与 frame-ancestors 的 Content-Security-Policy。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-011",
+          "title": "配置 Referrer-Policy",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "添加 add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;，避免泄露完整 URL。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-006",
+          "title": "启用 TLS 会话缓存",
+          "category": "TLS 配置",
+          "severity": "info",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "设置 ssl_session_cache shared:SSL:10m;，减少 TLS 握手开销并限制内存占用。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-014",
+          "title": "conf.d 下不应存在未加载的文件",
+          "category": "配置整洁度",
+          "severity": "info",
+          "status": "skip",
+          "message": "未导入反向代理配置",
+          "observed": null,
+          "expected": null,
+          "remediation": "将未使用的配置改名备份到 outside 目录或删除，避免运维误判当前生效配置。",
+          "evidence": []
+        }
+      ]
+    },
+    {
+      "host": "edge-05",
+      "origin": "demo",
+      "score": 100,
+      "summary": {
+        "total": 55,
+        "pass": 55,
+        "fail": 0,
+        "warn": 0,
+        "skip": 0,
+        "error": 0
+      },
+      "bySeverity": {
+        "critical": {
+          "pass": 3,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "high": {
+          "pass": 13,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "medium": {
+          "pass": 22,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "low": {
+          "pass": 15,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        },
+        "info": {
+          "pass": 2,
+          "fail": 0,
+          "warn": 0,
+          "skip": 0,
+          "error": 0
+        }
+      },
+      "configs": {
+        "sshd": {
+          "root": "/etc/ssh/sshd_config",
+          "files": [
+            "/etc/ssh/sshd_config"
+          ],
+          "statements": 24,
+          "issues": 0
+        },
+        "nginx": {
+          "root": "/etc/nginx/nginx.conf",
+          "files": [
+            "/etc/nginx/nginx.conf",
+            "/etc/nginx/conf.d/edge.conf"
+          ],
+          "statements": 23,
+          "issues": 0
+        },
+        "sysctl": {
+          "root": "/etc/sysctl.conf",
+          "files": [
+            "/etc/sysctl.conf"
+          ],
+          "statements": 19,
+          "issues": 0
+        }
+      },
+      "parseIssues": [],
+      "scanMs": 1,
+      "results": [
+        {
+          "ruleId": "SSH-001",
+          "title": "禁止 root 直接登录",
+          "category": "SSH 访问控制",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PermitRootLogin = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "将 /etc/ssh/sshd_config 中的 PermitRootLogin 设置为 no，改用普通账号登录后 sudo 提权。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 3,
+              "column": null,
+              "snippet": "PermitRootLogin no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-002",
+          "title": "禁用密码认证，仅允许公钥",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PasswordAuthentication = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PasswordAuthentication no，并确认用户已配置公钥，避免改后锁死登录。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 4,
+              "column": null,
+              "snippet": "PasswordAuthentication no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-003",
+          "title": "禁止空口令登录",
+          "category": "SSH 认证",
+          "severity": "critical",
+          "status": "pass",
+          "message": "PermitEmptyPasswords = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "显式设置 PermitEmptyPasswords no，防止空密码账号被远程登录。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 5,
+              "column": null,
+              "snippet": "PermitEmptyPasswords no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-001",
+          "title": "关闭 IPv4 转发",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.ip_forward = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.ip_forward = 0；若主机确需做路由/NAT，应改为通过防火墙策略单独放行。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 1,
+              "column": null,
+              "snippet": "net.ipv4.ip_forward = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-002",
+          "title": "拒绝源路由（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_source_route = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_source_route = 0，丢弃携带源路由选项的数据包。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 2,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_source_route = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-008",
+          "title": "开启 SYN Cookie",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.tcp_syncookies = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.tcp_syncookies = 1，抵御 SYN Flood。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 8,
+              "column": null,
+              "snippet": "net.ipv4.tcp_syncookies = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-009",
+          "title": "开启反向路径过滤（all）",
+          "category": "网络内核",
+          "severity": "high",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.rp_filter = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.rp_filter = 1，丢弃源地址不可达的伪造报文。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 9,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.rp_filter = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-013",
+          "title": "开启地址空间随机化",
+          "category": "内核加固",
+          "severity": "high",
+          "status": "pass",
+          "message": "kernel.randomize_va_space = 2，符合要求",
+          "observed": "2",
+          "expected": "2",
+          "remediation": "设置 kernel.randomize_va_space = 2，启用完整的 ASLR。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 13,
+              "column": null,
+              "snippet": "kernel.randomize_va_space = 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-002",
+          "title": "仅启用 TLS 1.2 与 TLS 1.3",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "pass",
+          "message": "1 个 server 块的 ssl_protocols 合规",
+          "observed": "edge.example.com:443 [ssl]: TLSv1.2 TLSv1.3",
+          "expected": "TLSv1.2 | TLSv1.3",
+          "remediation": "设置 ssl_protocols TLSv1.2 TLSv1.3; 并移除 TLSv1/TLSv1.1。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-003",
+          "title": "禁用弱 TLS 套件",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "pass",
+          "message": "TLS 套件配置合规",
+          "observed": "合规",
+          "expected": "禁用 RC4, 3DES, DES-CBC3, MD5, NULL, EXPORT, aNULL, eNULL, AES128-SHA, AES256-SHA",
+          "remediation": "将 ssl_ciphers 收敛为 ECDHE + AEAD 套件，移除 CBC、RC4、3DES 与匿名套件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-007",
+          "title": "配置 HSTS 响应头",
+          "category": "代理安全头",
+          "severity": "high",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 Strict-Transport-Security",
+          "observed": "全部配置",
+          "expected": "Strict-Transport-Security 匹配 /max-age=\\d{8,}/",
+          "remediation": "在 HTTPS server 块添加 add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-013",
+          "title": "证书文件必须真实存在",
+          "category": "TLS 配置",
+          "severity": "high",
+          "status": "pass",
+          "message": "ssl_certificate 引用的文件均存在",
+          "observed": "文件存在",
+          "expected": "ssl_certificate 指向真实存在且可读的文件",
+          "remediation": "修正 ssl_certificate 路径，确保证书文件位于配置引用的位置并可被 nginx 读取。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-004",
+          "title": "最大认证尝试次数不超过 4",
+          "category": "SSH 认证",
+          "severity": "high",
+          "status": "pass",
+          "message": "MaxAuthTries = 2，满足 <= 4",
+          "observed": "2",
+          "expected": "<= 4",
+          "remediation": "设置 MaxAuthTries 4（或更小），降低口令爆破成功的概率。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 6,
+              "column": null,
+              "snippet": "MaxAuthTries 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-013",
+          "title": "禁用非安全加密算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "pass",
+          "message": "Ciphers 未包含禁用算法",
+          "observed": "chacha20-poly1305@openssh.com, aes256-gcm@openssh.com",
+          "expected": "不包含 3des-cbc, aes128-cbc, aes192-cbc, aes256-cbc, arcfour, arcfour128, arcfour256, blowfish-cbc, cast128-cbc",
+          "remediation": "在 Ciphers 中移除 CBC/3DES/RC4/Blowfish 等弱算法，仅保留 chacha20-poly1305 与 AES-GCM。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 22,
+              "column": null,
+              "snippet": "Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-014",
+          "title": "禁用弱 MAC 算法",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "pass",
+          "message": "MACs 未包含禁用算法",
+          "observed": "hmac-sha2-512-etm@openssh.com",
+          "expected": "不包含 hmac-md5, hmac-md5-96, hmac-sha1, hmac-sha1-96, hmac-ripemd160, umac-64@openssh.com",
+          "remediation": "在 MACs 中移除 MD5/SHA1/RIPEMD160，保留 ETM 模式的 SHA2 算法。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 23,
+              "column": null,
+              "snippet": "MACs hmac-sha2-512-etm@openssh.com",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-015",
+          "title": "禁用基于 SHA1 的密钥交换",
+          "category": "SSH 加密",
+          "severity": "high",
+          "status": "pass",
+          "message": "KexAlgorithms 未包含禁用算法",
+          "observed": "curve25519-sha256",
+          "expected": "不包含 diffie-hellman-group1-sha1, diffie-hellman-group14-sha1, diffie-hellman-group-exchange-sha1, gss-group1-sha1",
+          "remediation": "在 KexAlgorithms 中移除 SHA1 系列，保留 curve25519-sha256 与 group16-sha512。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 24,
+              "column": null,
+              "snippet": "KexAlgorithms curve25519-sha256",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-003",
+          "title": "拒绝源路由（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.accept_source_route = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_source_route = 0，使新网卡默认继承安全值。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 3,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.accept_source_route = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-004",
+          "title": "拒绝 ICMP 重定向（all）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.accept_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.accept_redirects = 0，防止路由表被 ICMP 重定向篡改。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 4,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.accept_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-006",
+          "title": "不发送 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.send_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.send_redirects = 0，避免主机向同网段通告错误路由。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 6,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.send_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-010",
+          "title": "开启反向路径过滤（default）",
+          "category": "网络内核",
+          "severity": "medium",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.rp_filter = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.default.rp_filter = 1。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 10,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.rp_filter = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-011",
+          "title": "隐藏内核符号地址",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.kptr_restrict = 2，符合要求",
+          "observed": "2",
+          "expected": "2",
+          "remediation": "设置 kernel.kptr_restrict = 2，普通用户读取 /proc/kallsyms 时显示为 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 11,
+              "column": null,
+              "snippet": "kernel.kptr_restrict = 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-012",
+          "title": "限制 dmesg 访问",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.dmesg_restrict = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 kernel.dmesg_restrict = 1，仅 root 可读取内核环形缓冲区。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 12,
+              "column": null,
+              "snippet": "kernel.dmesg_restrict = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-014",
+          "title": "禁用 SysRq 组合键",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "kernel.sysrq = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 kernel.sysrq = 0，防止控制台按键触发危险的内核操作。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 14,
+              "column": null,
+              "snippet": "kernel.sysrq = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-016",
+          "title": "启用硬链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "fs.protected_hardlinks = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 fs.protected_hardlinks = 1，防止针对他人文件的硬链接攻击。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 16,
+              "column": null,
+              "snippet": "fs.protected_hardlinks = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-017",
+          "title": "启用符号链接保护",
+          "category": "内核加固",
+          "severity": "medium",
+          "status": "pass",
+          "message": "fs.protected_symlinks = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 fs.protected_symlinks = 1，防止 /tmp 下的符号链接攻击。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 17,
+              "column": null,
+              "snippet": "fs.protected_symlinks = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-001",
+          "title": "关闭 server_tokens 版本泄露",
+          "category": "代理指纹",
+          "severity": "medium",
+          "status": "pass",
+          "message": "1 个 server 块的 server_tokens 合规",
+          "observed": "edge.example.com:443 [ssl]: off",
+          "expected": "off",
+          "remediation": "在 http 或 server 块设置 server_tokens off，隐藏 nginx 版本号。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-008",
+          "title": "配置 X-Frame-Options 防点击劫持",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 X-Frame-Options",
+          "observed": "全部配置",
+          "expected": "X-Frame-Options 匹配 /^(SAMEORIGIN|DENY)$/",
+          "remediation": "添加 add_header X-Frame-Options \"SAMEORIGIN\" always;（需要跨域嵌套时改用 DENY + CSP frame-ancestors）。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-009",
+          "title": "配置 X-Content-Type-Options",
+          "category": "代理安全头",
+          "severity": "medium",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 X-Content-Type-Options",
+          "observed": "全部配置",
+          "expected": "X-Content-Type-Options 匹配 /^nosniff$/",
+          "remediation": "添加 add_header X-Content-Type-Options \"nosniff\" always;，阻止浏览器 MIME 嗅探。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-012",
+          "title": "关闭目录自动索引",
+          "category": "代理访问控制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "1 个 location 块配置合规",
+          "observed": "合规",
+          "expected": "autoindex off",
+          "remediation": "在所有 location 中设置 autoindex off，防止目录内容被枚举。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-005",
+          "title": "登录宽限时间不超过 60 秒",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "LoginGraceTime = 20，满足 <= 60",
+          "observed": "20",
+          "expected": "<= 60",
+          "remediation": "设置 LoginGraceTime 30（不超过 60），缩短未认证连接占用时间。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 7,
+              "column": null,
+              "snippet": "LoginGraceTime 20",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-009",
+          "title": "禁用 X11 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "X11Forwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 X11Forwarding no，避免通过 SSH 隧道转发图形界面。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 10,
+              "column": null,
+              "snippet": "X11Forwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-010",
+          "title": "禁用 TCP 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "AllowTcpForwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 AllowTcpForwarding no，防止服务器被用作内网跳板。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 11,
+              "column": null,
+              "snippet": "AllowTcpForwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-011",
+          "title": "禁用 SSH 隧道",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "PermitTunnel = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PermitTunnel no，禁止 tun/tap 设备转发。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 13,
+              "column": null,
+              "snippet": "PermitTunnel no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-012",
+          "title": "禁用 Agent 转发",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "AllowAgentForwarding = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 AllowAgentForwarding no，避免攻击者复用已转发的 ssh-agent 凭证。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 12,
+              "column": null,
+              "snippet": "AllowAgentForwarding no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-018",
+          "title": "禁用基于主机的认证",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "HostbasedAuthentication = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 HostbasedAuthentication no，避免依赖可伪造的主机信任关系。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 16,
+              "column": null,
+              "snippet": "HostbasedAuthentication no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-019",
+          "title": "忽略 .rhosts 信任文件",
+          "category": "SSH 认证",
+          "severity": "medium",
+          "status": "pass",
+          "message": "IgnoreRhosts = yes，符合要求",
+          "observed": "yes",
+          "expected": "yes",
+          "remediation": "设置 IgnoreRhosts yes，禁用基于 ~/.rhosts 与 /etc/hosts.equiv 的信任。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 15,
+              "column": null,
+              "snippet": "IgnoreRhosts yes",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-020",
+          "title": "禁止加载用户环境变量",
+          "category": "SSH 访问控制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "PermitUserEnvironment = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 PermitUserEnvironment no，防止用户通过 ~/.ssh/environment 注入变量绕过限制。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 17,
+              "column": null,
+              "snippet": "PermitUserEnvironment no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-022",
+          "title": "网关端口保持默认关闭",
+          "category": "SSH 功能限制",
+          "severity": "medium",
+          "status": "pass",
+          "message": "GatewayPorts = no，符合要求",
+          "observed": "no",
+          "expected": "no",
+          "remediation": "设置 GatewayPorts no，避免远程转发端口监听在 0.0.0.0。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 14,
+              "column": null,
+              "snippet": "GatewayPorts no",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-005",
+          "title": "拒绝 ICMP 重定向（default）",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.default.accept_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.default.accept_redirects = 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 5,
+              "column": null,
+              "snippet": "net.ipv4.conf.default.accept_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-007",
+          "title": "记录异常源地址数据包",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.log_martians = 1，符合要求",
+          "observed": "1",
+          "expected": "1",
+          "remediation": "设置 net.ipv4.conf.all.log_martians = 1，记录不可路由源地址的报文。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 7,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.log_martians = 1",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-015",
+          "title": "限制 perf 事件访问",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "pass",
+          "message": "kernel.perf_event_paranoid = 2，满足 >= 2",
+          "observed": "2",
+          "expected": ">= 2",
+          "remediation": "设置 kernel.perf_event_paranoid >= 2，限制非特权用户使用性能计数器。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 15,
+              "column": null,
+              "snippet": "kernel.perf_event_paranoid = 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-018",
+          "title": "禁用 SUID 进程核心转储",
+          "category": "内核加固",
+          "severity": "low",
+          "status": "pass",
+          "message": "fs.suid_dumpable = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 fs.suid_dumpable = 0，避免 SUID 进程内存被写入 core 文件。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 18,
+              "column": null,
+              "snippet": "fs.suid_dumpable = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "KERN-019",
+          "title": "不接受安全 ICMP 重定向",
+          "category": "网络内核",
+          "severity": "low",
+          "status": "pass",
+          "message": "net.ipv4.conf.all.secure_redirects = 0，符合要求",
+          "observed": "0",
+          "expected": "0",
+          "remediation": "设置 net.ipv4.conf.all.secure_redirects = 0。",
+          "evidence": [
+            {
+              "file": "/etc/sysctl.conf",
+              "line": 19,
+              "column": null,
+              "snippet": "net.ipv4.conf.all.secure_redirects = 0",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-004",
+          "title": "优先使用服务端套件顺序",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "pass",
+          "message": "1 个 server 块的 ssl_prefer_server_ciphers 合规",
+          "observed": "edge.example.com:443 [ssl]: on",
+          "expected": "on",
+          "remediation": "设置 ssl_prefer_server_ciphers on;，由服务端决定协商的套件。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-005",
+          "title": "关闭 TLS 会话票据",
+          "category": "TLS 配置",
+          "severity": "low",
+          "status": "pass",
+          "message": "1 个 server 块的 ssl_session_tickets 合规",
+          "observed": "edge.example.com:443 [ssl]: off",
+          "expected": "off",
+          "remediation": "设置 ssl_session_tickets off;，避免票据密钥泄露导致会话可被解密。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-010",
+          "title": "配置内容安全策略 CSP",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 Content-Security-Policy",
+          "observed": "全部配置",
+          "expected": "Content-Security-Policy 匹配 /default-src/",
+          "remediation": "添加包含 default-src 'self' 与 frame-ancestors 的 Content-Security-Policy。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-011",
+          "title": "配置 Referrer-Policy",
+          "category": "代理安全头",
+          "severity": "low",
+          "status": "pass",
+          "message": "1 个 server 块均配置了 Referrer-Policy",
+          "observed": "全部配置",
+          "expected": "Referrer-Policy 匹配 /^(strict-origin-when-cross-origin|no-referrer|strict-origin)$/",
+          "remediation": "添加 add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;，避免泄露完整 URL。",
+          "evidence": []
+        },
+        {
+          "ruleId": "SSH-006",
+          "title": "ClientAliveInterval 不超过 300 秒",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveInterval = 120，满足 <= 300",
+          "observed": "120",
+          "expected": "<= 300",
+          "remediation": "设置 ClientAliveInterval 300，使空闲会话在 5 分钟后被探测并回收。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 8,
+              "column": null,
+              "snippet": "ClientAliveInterval 120",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-007",
+          "title": "ClientAliveInterval 必须启用",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveInterval = 120，满足 > 0",
+          "observed": "120",
+          "expected": "> 0",
+          "remediation": "ClientAliveInterval 为 0 表示关闭空闲探测，应设置为非零值（如 300）。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 8,
+              "column": null,
+              "snippet": "ClientAliveInterval 120",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-008",
+          "title": "ClientAliveCountMax 不超过 3",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "ClientAliveCountMax = 2，满足 <= 3",
+          "observed": "2",
+          "expected": "<= 3",
+          "remediation": "设置 ClientAliveCountMax 3，与探测间隔配合在约 15 分钟内断开僵死会话。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 9,
+              "column": null,
+              "snippet": "ClientAliveCountMax 2",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-016",
+          "title": "配置登录警告 Banner",
+          "category": "SSH 访问控制",
+          "severity": "low",
+          "status": "pass",
+          "message": "Banner = /etc/ssh/issue.net，符合要求",
+          "observed": "/etc/ssh/issue.net",
+          "expected": "^(?!(none|NONE)$).+",
+          "remediation": "设置 Banner /etc/ssh/issue.net，在认证前展示经授权的访问声明；Banner none 等于关闭提示。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 20,
+              "column": null,
+              "snippet": "Banner /etc/ssh/issue.net",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-017",
+          "title": "日志级别为 VERBOSE 或更高",
+          "category": "SSH 审计",
+          "severity": "low",
+          "status": "pass",
+          "message": "LogLevel = VERBOSE，符合要求",
+          "observed": "VERBOSE",
+          "expected": "VERBOSE | INFO | DEBUG | DEBUG1 | DEBUG2 | DEBUG3",
+          "remediation": "设置 LogLevel VERBOSE，记录登录用户与密钥指纹，便于审计追溯。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 19,
+              "column": null,
+              "snippet": "LogLevel VERBOSE",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "SSH-021",
+          "title": "限制单连接最大会话数",
+          "category": "SSH 会话",
+          "severity": "low",
+          "status": "pass",
+          "message": "MaxSessions = 8，满足 <= 10",
+          "observed": "8",
+          "expected": "<= 10",
+          "remediation": "设置 MaxSessions 10 或更小，限制复用连接可打开的会话数量。",
+          "evidence": [
+            {
+              "file": "/etc/ssh/sshd_config",
+              "line": 21,
+              "column": null,
+              "snippet": "MaxSessions 8",
+              "block": null,
+              "note": null
+            }
+          ]
+        },
+        {
+          "ruleId": "NGX-006",
+          "title": "启用 TLS 会话缓存",
+          "category": "TLS 配置",
+          "severity": "info",
+          "status": "pass",
+          "message": "1 个 server 块的 ssl_session_cache 合规",
+          "observed": "edge.example.com:443 [ssl]: shared:SSL:5m",
+          "expected": "shared:",
+          "remediation": "设置 ssl_session_cache shared:SSL:10m;，减少 TLS 握手开销并限制内存占用。",
+          "evidence": []
+        },
+        {
+          "ruleId": "NGX-014",
+          "title": "conf.d 下不应存在未加载的文件",
+          "category": "配置整洁度",
+          "severity": "info",
+          "status": "pass",
+          "message": "/etc/nginx/conf.d 下无未加载的配置文件",
+          "observed": "",
+          "expected": "所有配置文件均被 include 引用",
+          "remediation": "将未使用的配置改名备份到 outside 目录或删除，避免运维误判当前生效配置。",
+          "evidence": []
+        }
+      ]
+    }
+  ]
+}

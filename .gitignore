@@ -16,3 +16,9 @@ node_modules/
 __pycache__/
 .venv/
 venv/
+
+dist/
+test-results/
+playwright-report/
+tsconfig.tsbuildinfo
+e2e/screens/

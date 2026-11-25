@@ -1,0 +1,1771 @@
+{
+  "version": 1,
+  "name": "主机安全配置基线（SSH / Nginx / 内核参数）",
+  "description": "覆盖 SSH 守护进程、Nginx 反向代理与 Linux 内核参数的合规检查。每条规则均附带一组可复现的通过/不通过样例，样例以补丁形式作用于内置基础配置。",
+  "rules": [
+    {
+      "id": "SSH-001",
+      "title": "禁止 root 直接登录",
+      "category": "SSH 访问控制",
+      "severity": "critical",
+      "kind": "sshd",
+      "description": "root 拥有无限权限，直接登录一旦凭证泄露影响面最大。",
+      "remediation": "将 /etc/ssh/sshd_config 中的 PermitRootLogin 设置为 no，改用普通账号登录后 sudo 提权。",
+      "reference": "CIS 5.2.8 · 等保 8.1.4.1",
+      "check": {
+        "type": "sshdValue",
+        "key": "PermitRootLogin",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "PermitRootLogin no",
+            "replace": "PermitRootLogin yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-002",
+      "title": "禁用密码认证，仅允许公钥",
+      "category": "SSH 认证",
+      "severity": "critical",
+      "kind": "sshd",
+      "description": "禁用密码认证，仅允许公钥",
+      "remediation": "设置 PasswordAuthentication no，并确认用户已配置公钥，避免改后锁死登录。",
+      "reference": "CIS 5.2.10 · 等保 8.1.4.2",
+      "check": {
+        "type": "sshdValue",
+        "key": "PasswordAuthentication",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "PasswordAuthentication no",
+            "replace": "PasswordAuthentication yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-003",
+      "title": "禁止空口令登录",
+      "category": "SSH 认证",
+      "severity": "critical",
+      "kind": "sshd",
+      "description": "禁止空口令登录",
+      "remediation": "显式设置 PermitEmptyPasswords no，防止空密码账号被远程登录。",
+      "reference": "CIS 5.2.9",
+      "check": {
+        "type": "sshdValue",
+        "key": "PermitEmptyPasswords",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "PermitEmptyPasswords no",
+            "replace": "PermitEmptyPasswords yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-004",
+      "title": "最大认证尝试次数不超过 4",
+      "category": "SSH 认证",
+      "severity": "high",
+      "kind": "sshd",
+      "description": "最大认证尝试次数不超过 4",
+      "remediation": "设置 MaxAuthTries 4（或更小），降低口令爆破成功的概率。",
+      "reference": "CIS 5.2.5",
+      "check": {
+        "type": "sshdNumeric",
+        "key": "MaxAuthTries",
+        "op": "<=",
+        "value": 4,
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "4"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "MaxAuthTries 3",
+            "replace": "MaxAuthTries 8"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-005",
+      "title": "登录宽限时间不超过 60 秒",
+      "category": "SSH 认证",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "登录宽限时间不超过 60 秒",
+      "remediation": "设置 LoginGraceTime 30（不超过 60），缩短未认证连接占用时间。",
+      "reference": "CIS 5.2.18",
+      "check": {
+        "type": "sshdNumeric",
+        "key": "LoginGraceTime",
+        "op": "<=",
+        "value": 60,
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "30"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "LoginGraceTime 30",
+            "replace": "LoginGraceTime 120"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-006",
+      "title": "ClientAliveInterval 不超过 300 秒",
+      "category": "SSH 会话",
+      "severity": "low",
+      "kind": "sshd",
+      "description": "ClientAliveInterval 不超过 300 秒",
+      "remediation": "设置 ClientAliveInterval 300，使空闲会话在 5 分钟后被探测并回收。",
+      "reference": "CIS 5.2.16",
+      "check": {
+        "type": "sshdNumeric",
+        "key": "ClientAliveInterval",
+        "op": "<=",
+        "value": 300,
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "300"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "ClientAliveInterval 300",
+            "replace": "ClientAliveInterval 900"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-007",
+      "title": "ClientAliveInterval 必须启用",
+      "category": "SSH 会话",
+      "severity": "low",
+      "kind": "sshd",
+      "description": "ClientAliveInterval 必须启用",
+      "remediation": "ClientAliveInterval 为 0 表示关闭空闲探测，应设置为非零值（如 300）。",
+      "reference": "CIS 5.2.16",
+      "check": {
+        "type": "sshdNumeric",
+        "key": "ClientAliveInterval",
+        "op": ">",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "300"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "ClientAliveInterval 300",
+            "replace": "ClientAliveInterval 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-008",
+      "title": "ClientAliveCountMax 不超过 3",
+      "category": "SSH 会话",
+      "severity": "low",
+      "kind": "sshd",
+      "description": "ClientAliveCountMax 不超过 3",
+      "remediation": "设置 ClientAliveCountMax 3，与探测间隔配合在约 15 分钟内断开僵死会话。",
+      "reference": "CIS 5.2.17",
+      "check": {
+        "type": "sshdNumeric",
+        "key": "ClientAliveCountMax",
+        "op": "<=",
+        "value": 3,
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "3"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "ClientAliveCountMax 3",
+            "replace": "ClientAliveCountMax 6"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-009",
+      "title": "禁用 X11 转发",
+      "category": "SSH 功能限制",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "禁用 X11 转发",
+      "remediation": "设置 X11Forwarding no，避免通过 SSH 隧道转发图形界面。",
+      "reference": "CIS 5.2.6",
+      "check": {
+        "type": "sshdValue",
+        "key": "X11Forwarding",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "X11Forwarding no",
+            "replace": "X11Forwarding yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-010",
+      "title": "禁用 TCP 转发",
+      "category": "SSH 功能限制",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "禁用 TCP 转发",
+      "remediation": "设置 AllowTcpForwarding no，防止服务器被用作内网跳板。",
+      "reference": "CIS 5.2.21",
+      "check": {
+        "type": "sshdValue",
+        "key": "AllowTcpForwarding",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "AllowTcpForwarding no",
+            "replace": "AllowTcpForwarding yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-011",
+      "title": "禁用 SSH 隧道",
+      "category": "SSH 功能限制",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "禁用 SSH 隧道",
+      "remediation": "设置 PermitTunnel no，禁止 tun/tap 设备转发。",
+      "reference": "CIS 5.2.22",
+      "check": {
+        "type": "sshdValue",
+        "key": "PermitTunnel",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "PermitTunnel no",
+            "replace": "PermitTunnel yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-012",
+      "title": "禁用 Agent 转发",
+      "category": "SSH 功能限制",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "禁用 Agent 转发",
+      "remediation": "设置 AllowAgentForwarding no，避免攻击者复用已转发的 ssh-agent 凭证。",
+      "reference": "CIS 5.2.20",
+      "check": {
+        "type": "sshdValue",
+        "key": "AllowAgentForwarding",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "AllowAgentForwarding no",
+            "replace": "AllowAgentForwarding yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-013",
+      "title": "禁用非安全加密算法",
+      "category": "SSH 加密",
+      "severity": "high",
+      "kind": "sshd",
+      "description": "禁用非安全加密算法",
+      "remediation": "在 Ciphers 中移除 CBC/3DES/RC4/Blowfish 等弱算法，仅保留 chacha20-poly1305 与 AES-GCM。",
+      "reference": "CIS 5.2.12",
+      "check": {
+        "type": "sshdListExcludes",
+        "key": "Ciphers",
+        "forbidden": [
+          "3des-cbc",
+          "aes128-cbc",
+          "aes192-cbc",
+          "aes256-cbc",
+          "arcfour",
+          "arcfour128",
+          "arcfour256",
+          "blowfish-cbc",
+          "cast128-cbc"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com",
+            "replace": "Ciphers 3des-cbc,aes128-cbc,aes256-gcm@openssh.com"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-014",
+      "title": "禁用弱 MAC 算法",
+      "category": "SSH 加密",
+      "severity": "high",
+      "kind": "sshd",
+      "description": "禁用弱 MAC 算法",
+      "remediation": "在 MACs 中移除 MD5/SHA1/RIPEMD160，保留 ETM 模式的 SHA2 算法。",
+      "reference": "CIS 5.2.13",
+      "check": {
+        "type": "sshdListExcludes",
+        "key": "MACs",
+        "forbidden": [
+          "hmac-md5",
+          "hmac-md5-96",
+          "hmac-sha1",
+          "hmac-sha1-96",
+          "hmac-ripemd160",
+          "umac-64@openssh.com"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com",
+            "replace": "MACs hmac-md5,hmac-sha1,hmac-sha2-256-etm@openssh.com"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-015",
+      "title": "禁用基于 SHA1 的密钥交换",
+      "category": "SSH 加密",
+      "severity": "high",
+      "kind": "sshd",
+      "description": "禁用基于 SHA1 的密钥交换",
+      "remediation": "在 KexAlgorithms 中移除 SHA1 系列，保留 curve25519-sha256 与 group16-sha512。",
+      "reference": "CIS 5.2.14",
+      "check": {
+        "type": "sshdListExcludes",
+        "key": "KexAlgorithms",
+        "forbidden": [
+          "diffie-hellman-group1-sha1",
+          "diffie-hellman-group14-sha1",
+          "diffie-hellman-group-exchange-sha1",
+          "gss-group1-sha1"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512",
+            "replace": "KexAlgorithms diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,curve25519-sha256"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-016",
+      "title": "配置登录警告 Banner",
+      "category": "SSH 访问控制",
+      "severity": "low",
+      "kind": "sshd",
+      "description": "配置登录警告 Banner",
+      "remediation": "设置 Banner /etc/ssh/issue.net，在认证前展示经授权的访问声明；Banner none 等于关闭提示。",
+      "reference": "CIS 5.2.19 · 等保 8.1.4.1",
+      "check": {
+        "type": "sshdValue",
+        "key": "Banner",
+        "matches": "^(?!(none|NONE)$).+"
+      },
+      "fix": {
+        "args": [
+          "/etc/ssh/issue.net"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "Banner /etc/ssh/issue.net",
+            "replace": "Banner none"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-017",
+      "title": "日志级别为 VERBOSE 或更高",
+      "category": "SSH 审计",
+      "severity": "low",
+      "kind": "sshd",
+      "description": "日志级别为 VERBOSE 或更高",
+      "remediation": "设置 LogLevel VERBOSE，记录登录用户与密钥指纹，便于审计追溯。",
+      "reference": "CIS 5.2.4",
+      "check": {
+        "type": "sshdValue",
+        "key": "LogLevel",
+        "in": [
+          "VERBOSE",
+          "INFO",
+          "DEBUG",
+          "DEBUG1",
+          "DEBUG2",
+          "DEBUG3"
+        ]
+      },
+      "fix": {
+        "args": [
+          "VERBOSE"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "LogLevel VERBOSE",
+            "replace": "LogLevel QUIET"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-018",
+      "title": "禁用基于主机的认证",
+      "category": "SSH 认证",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "禁用基于主机的认证",
+      "remediation": "设置 HostbasedAuthentication no，避免依赖可伪造的主机信任关系。",
+      "reference": "CIS 5.2.11",
+      "check": {
+        "type": "sshdValue",
+        "key": "HostbasedAuthentication",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "HostbasedAuthentication no",
+            "replace": "HostbasedAuthentication yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-019",
+      "title": "忽略 .rhosts 信任文件",
+      "category": "SSH 认证",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "忽略 .rhosts 信任文件",
+      "remediation": "设置 IgnoreRhosts yes，禁用基于 ~/.rhosts 与 /etc/hosts.equiv 的信任。",
+      "reference": "CIS 5.2.7",
+      "check": {
+        "type": "sshdValue",
+        "key": "IgnoreRhosts",
+        "in": [
+          "yes"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "yes"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "IgnoreRhosts yes",
+            "replace": "IgnoreRhosts no"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-020",
+      "title": "禁止加载用户环境变量",
+      "category": "SSH 访问控制",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "禁止加载用户环境变量",
+      "remediation": "设置 PermitUserEnvironment no，防止用户通过 ~/.ssh/environment 注入变量绕过限制。",
+      "reference": "CIS 5.2.15",
+      "check": {
+        "type": "sshdValue",
+        "key": "PermitUserEnvironment",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "PermitUserEnvironment no",
+            "replace": "PermitUserEnvironment yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-021",
+      "title": "限制单连接最大会话数",
+      "category": "SSH 会话",
+      "severity": "low",
+      "kind": "sshd",
+      "description": "限制单连接最大会话数",
+      "remediation": "设置 MaxSessions 10 或更小，限制复用连接可打开的会话数量。",
+      "reference": "CIS 5.2.23",
+      "check": {
+        "type": "sshdNumeric",
+        "key": "MaxSessions",
+        "op": "<=",
+        "value": 10,
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "10"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "MaxSessions 10",
+            "replace": "MaxSessions 32"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "SSH-022",
+      "title": "网关端口保持默认关闭",
+      "category": "SSH 功能限制",
+      "severity": "medium",
+      "kind": "sshd",
+      "description": "网关端口保持默认关闭",
+      "remediation": "设置 GatewayPorts no，避免远程转发端口监听在 0.0.0.0。",
+      "reference": "CIS 5.2.24",
+      "check": {
+        "type": "sshdValue",
+        "key": "GatewayPorts",
+        "in": [
+          "no"
+        ],
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "no"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/ssh/sshd_config",
+            "find": "GatewayPorts no",
+            "replace": "GatewayPorts yes"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-001",
+      "title": "关闭 server_tokens 版本泄露",
+      "category": "代理指纹",
+      "severity": "medium",
+      "kind": "nginx",
+      "description": "关闭 server_tokens 版本泄露",
+      "remediation": "在 http 或 server 块设置 server_tokens off，隐藏 nginx 版本号。",
+      "reference": "等保 8.1.4.3",
+      "check": {
+        "type": "nginxServerValue",
+        "key": "server_tokens",
+        "equals": "off",
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "off"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/nginx.conf",
+            "find": "server_tokens off;",
+            "replace": "server_tokens on;"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-002",
+      "title": "仅启用 TLS 1.2 与 TLS 1.3",
+      "category": "TLS 配置",
+      "severity": "high",
+      "kind": "nginx",
+      "description": "仅启用 TLS 1.2 与 TLS 1.3",
+      "remediation": "设置 ssl_protocols TLSv1.2 TLSv1.3; 并移除 TLSv1/TLSv1.1。",
+      "reference": "CIS 4.1 · 等保 8.1.4.4",
+      "check": {
+        "type": "nginxServerValue",
+        "key": "ssl_protocols",
+        "subsetOf": [
+          "TLSv1.2",
+          "TLSv1.3"
+        ],
+        "scope": "ssl",
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "TLSv1.2",
+          "TLSv1.3"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/nginx.conf",
+            "find": "ssl_protocols TLSv1.2 TLSv1.3;",
+            "replace": "ssl_protocols TLSv1 TLSv1.1 TLSv1.2;"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-003",
+      "title": "禁用弱 TLS 套件",
+      "category": "TLS 配置",
+      "severity": "high",
+      "kind": "nginx",
+      "description": "禁用弱 TLS 套件",
+      "remediation": "将 ssl_ciphers 收敛为 ECDHE + AEAD 套件，移除 CBC、RC4、3DES 与匿名套件。",
+      "reference": "CIS 4.2 · 等保 8.1.4.4",
+      "check": {
+        "type": "nginxServerCipher",
+        "key": "ssl_ciphers",
+        "scope": "ssl",
+        "forbidden": [
+          "RC4",
+          "3DES",
+          "DES-CBC3",
+          "MD5",
+          "NULL",
+          "EXPORT",
+          "aNULL",
+          "eNULL",
+          "AES128-SHA",
+          "AES256-SHA"
+        ]
+      },
+      "fix": {
+        "args": [
+          "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/nginx.conf",
+            "find": "ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;",
+            "replace": "ssl_ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA:DES-CBC3-SHA:RC4-SHA;"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-004",
+      "title": "优先使用服务端套件顺序",
+      "category": "TLS 配置",
+      "severity": "low",
+      "kind": "nginx",
+      "description": "优先使用服务端套件顺序",
+      "remediation": "设置 ssl_prefer_server_ciphers on;，由服务端决定协商的套件。",
+      "reference": "CIS 4.3",
+      "check": {
+        "type": "nginxServerValue",
+        "key": "ssl_prefer_server_ciphers",
+        "equals": "on",
+        "scope": "ssl",
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "on"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/nginx.conf",
+            "find": "ssl_prefer_server_ciphers on;",
+            "replace": "ssl_prefer_server_ciphers off;"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-005",
+      "title": "关闭 TLS 会话票据",
+      "category": "TLS 配置",
+      "severity": "low",
+      "kind": "nginx",
+      "description": "关闭 TLS 会话票据",
+      "remediation": "设置 ssl_session_tickets off;，避免票据密钥泄露导致会话可被解密。",
+      "reference": "CIS 4.4",
+      "check": {
+        "type": "nginxServerValue",
+        "key": "ssl_session_tickets",
+        "equals": "off",
+        "scope": "ssl",
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "off"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/nginx.conf",
+            "find": "ssl_session_tickets off;",
+            "replace": "ssl_session_tickets on;"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-006",
+      "title": "启用 TLS 会话缓存",
+      "category": "TLS 配置",
+      "severity": "info",
+      "kind": "nginx",
+      "description": "启用 TLS 会话缓存",
+      "remediation": "设置 ssl_session_cache shared:SSL:10m;，减少 TLS 握手开销并限制内存占用。",
+      "reference": "性能与容量基线",
+      "check": {
+        "type": "nginxServerValue",
+        "key": "ssl_session_cache",
+        "matches": "shared:",
+        "scope": "ssl",
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "shared:SSL:10m"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/nginx.conf",
+            "find": "ssl_session_cache shared:SSL:10m;",
+            "replace": "ssl_session_cache off;"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-007",
+      "title": "配置 HSTS 响应头",
+      "category": "代理安全头",
+      "severity": "high",
+      "kind": "nginx",
+      "description": "配置 HSTS 响应头",
+      "remediation": "在 HTTPS server 块添加 add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+      "reference": "OWASP · 等保 8.1.4.4",
+      "check": {
+        "type": "nginxServerHeader",
+        "name": "Strict-Transport-Security",
+        "valueMatches": "max-age=\\d{8,}",
+        "scope": "ssl"
+      },
+      "fix": {
+        "args": [
+          "max-age=31536000; includeSubDomains",
+          "always"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/conf.d/site.conf",
+            "find": "add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+            "replace": ""
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-008",
+      "title": "配置 X-Frame-Options 防点击劫持",
+      "category": "代理安全头",
+      "severity": "medium",
+      "kind": "nginx",
+      "description": "配置 X-Frame-Options 防点击劫持",
+      "remediation": "添加 add_header X-Frame-Options \"SAMEORIGIN\" always;（需要跨域嵌套时改用 DENY + CSP frame-ancestors）。",
+      "reference": "OWASP · 等保 8.1.4.3",
+      "check": {
+        "type": "nginxServerHeader",
+        "name": "X-Frame-Options",
+        "valueMatches": "^(SAMEORIGIN|DENY)$"
+      },
+      "fix": {
+        "args": [
+          "SAMEORIGIN",
+          "always"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/conf.d/site.conf",
+            "find": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+            "replace": ""
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-009",
+      "title": "配置 X-Content-Type-Options",
+      "category": "代理安全头",
+      "severity": "medium",
+      "kind": "nginx",
+      "description": "配置 X-Content-Type-Options",
+      "remediation": "添加 add_header X-Content-Type-Options \"nosniff\" always;，阻止浏览器 MIME 嗅探。",
+      "reference": "OWASP",
+      "check": {
+        "type": "nginxServerHeader",
+        "name": "X-Content-Type-Options",
+        "valueMatches": "^nosniff$"
+      },
+      "fix": {
+        "args": [
+          "nosniff",
+          "always"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/conf.d/site.conf",
+            "find": "add_header X-Content-Type-Options \"nosniff\" always;",
+            "replace": ""
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-010",
+      "title": "配置内容安全策略 CSP",
+      "category": "代理安全头",
+      "severity": "low",
+      "kind": "nginx",
+      "description": "配置内容安全策略 CSP",
+      "remediation": "添加包含 default-src 'self' 与 frame-ancestors 的 Content-Security-Policy。",
+      "reference": "OWASP",
+      "check": {
+        "type": "nginxServerHeader",
+        "name": "Content-Security-Policy",
+        "valueMatches": "default-src"
+      },
+      "fix": {
+        "args": [
+          "default-src 'self'; frame-ancestors 'self'",
+          "always"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/conf.d/site.conf",
+            "find": "add_header Content-Security-Policy \"default-src 'self'; frame-ancestors 'self'\" always;",
+            "replace": ""
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-011",
+      "title": "配置 Referrer-Policy",
+      "category": "代理安全头",
+      "severity": "low",
+      "kind": "nginx",
+      "description": "配置 Referrer-Policy",
+      "remediation": "添加 add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;，避免泄露完整 URL。",
+      "reference": "OWASP",
+      "check": {
+        "type": "nginxServerHeader",
+        "name": "Referrer-Policy",
+        "valueMatches": "^(strict-origin-when-cross-origin|no-referrer|strict-origin)$"
+      },
+      "fix": {
+        "args": [
+          "strict-origin-when-cross-origin",
+          "always"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/conf.d/site.conf",
+            "find": "add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;",
+            "replace": ""
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-012",
+      "title": "关闭目录自动索引",
+      "category": "代理访问控制",
+      "severity": "medium",
+      "kind": "nginx",
+      "description": "目录列表会暴露备份文件、旧版本与内部命名。",
+      "remediation": "在所有 location 中设置 autoindex off，防止目录内容被枚举。",
+      "reference": "等保 8.1.4.3",
+      "check": {
+        "type": "nginxLocationValue",
+        "key": "autoindex",
+        "equals": "off",
+        "absentMeans": "fail"
+      },
+      "fix": {
+        "args": [
+          "off"
+        ]
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/conf.d/site.conf",
+            "find": "autoindex off;\n        proxy_pass",
+            "replace": "autoindex on;\n        proxy_pass"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-013",
+      "title": "证书文件必须真实存在",
+      "category": "TLS 配置",
+      "severity": "high",
+      "kind": "nginx",
+      "description": "证书文件必须真实存在",
+      "remediation": "修正 ssl_certificate 路径，确保证书文件位于配置引用的位置并可被 nginx 读取。",
+      "reference": "运行可靠性基线",
+      "check": {
+        "type": "nginxServerFile",
+        "key": "ssl_certificate",
+        "scope": "ssl"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/conf.d/site.conf",
+            "find": "/etc/nginx/certs/app.crt",
+            "replace": "/etc/nginx/certs/missing.crt"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "NGX-014",
+      "title": "conf.d 下不应存在未加载的文件",
+      "category": "配置整洁度",
+      "severity": "info",
+      "kind": "nginx",
+      "description": "conf.d 下不应存在未加载的文件",
+      "remediation": "将未使用的配置改名备份到 outside 目录或删除，避免运维误判当前生效配置。",
+      "reference": "配置管理基线",
+      "check": {
+        "type": "nginxOrphanIncludes",
+        "dir": "/etc/nginx/conf.d"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/nginx/conf.d/legacy.conf.disabled",
+            "append": "server {\n    listen 80;\n    server_name legacy.example.com;\n}\n"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-001",
+      "title": "关闭 IPv4 转发",
+      "category": "网络内核",
+      "severity": "high",
+      "kind": "sysctl",
+      "description": "关闭 IPv4 转发",
+      "remediation": "设置 net.ipv4.ip_forward = 0；若主机确需做路由/NAT，应改为通过防火墙策略单独放行。",
+      "reference": "CIS 3.1.1",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.ip_forward",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.ip_forward = 0",
+            "replace": "net.ipv4.ip_forward = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-002",
+      "title": "拒绝源路由（all）",
+      "category": "网络内核",
+      "severity": "high",
+      "kind": "sysctl",
+      "description": "拒绝源路由（all）",
+      "remediation": "设置 net.ipv4.conf.all.accept_source_route = 0，丢弃携带源路由选项的数据包。",
+      "reference": "CIS 3.2.1",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.all.accept_source_route",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.all.accept_source_route = 0",
+            "replace": "net.ipv4.conf.all.accept_source_route = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-003",
+      "title": "拒绝源路由（default）",
+      "category": "网络内核",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "拒绝源路由（default）",
+      "remediation": "设置 net.ipv4.conf.default.accept_source_route = 0，使新网卡默认继承安全值。",
+      "reference": "CIS 3.2.2",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.default.accept_source_route",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.default.accept_source_route = 0",
+            "replace": "net.ipv4.conf.default.accept_source_route = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-004",
+      "title": "拒绝 ICMP 重定向（all）",
+      "category": "网络内核",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "拒绝 ICMP 重定向（all）",
+      "remediation": "设置 net.ipv4.conf.all.accept_redirects = 0，防止路由表被 ICMP 重定向篡改。",
+      "reference": "CIS 3.2.3",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.all.accept_redirects",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.all.accept_redirects = 0",
+            "replace": "net.ipv4.conf.all.accept_redirects = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-005",
+      "title": "拒绝 ICMP 重定向（default）",
+      "category": "网络内核",
+      "severity": "low",
+      "kind": "sysctl",
+      "description": "拒绝 ICMP 重定向（default）",
+      "remediation": "设置 net.ipv4.conf.default.accept_redirects = 0。",
+      "reference": "CIS 3.2.4",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.default.accept_redirects",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.default.accept_redirects = 0",
+            "replace": "net.ipv4.conf.default.accept_redirects = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-006",
+      "title": "不发送 ICMP 重定向",
+      "category": "网络内核",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "不发送 ICMP 重定向",
+      "remediation": "设置 net.ipv4.conf.all.send_redirects = 0，避免主机向同网段通告错误路由。",
+      "reference": "CIS 3.2.5",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.all.send_redirects",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.all.send_redirects = 0",
+            "replace": "net.ipv4.conf.all.send_redirects = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-007",
+      "title": "记录异常源地址数据包",
+      "category": "网络内核",
+      "severity": "low",
+      "kind": "sysctl",
+      "description": "记录异常源地址数据包",
+      "remediation": "设置 net.ipv4.conf.all.log_martians = 1，记录不可路由源地址的报文。",
+      "reference": "CIS 3.2.6",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.all.log_martians",
+        "value": 1,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.all.log_martians = 1",
+            "replace": "net.ipv4.conf.all.log_martians = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-008",
+      "title": "开启 SYN Cookie",
+      "category": "网络内核",
+      "severity": "high",
+      "kind": "sysctl",
+      "description": "开启 SYN Cookie",
+      "remediation": "设置 net.ipv4.tcp_syncookies = 1，抵御 SYN Flood。",
+      "reference": "CIS 3.2.8",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.tcp_syncookies",
+        "value": 1,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.tcp_syncookies = 1",
+            "replace": "net.ipv4.tcp_syncookies = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-009",
+      "title": "开启反向路径过滤（all）",
+      "category": "网络内核",
+      "severity": "high",
+      "kind": "sysctl",
+      "description": "开启反向路径过滤（all）",
+      "remediation": "设置 net.ipv4.conf.all.rp_filter = 1，丢弃源地址不可达的伪造报文。",
+      "reference": "CIS 3.2.7",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.all.rp_filter",
+        "value": 1,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.all.rp_filter = 1",
+            "replace": "net.ipv4.conf.all.rp_filter = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-010",
+      "title": "开启反向路径过滤（default）",
+      "category": "网络内核",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "开启反向路径过滤（default）",
+      "remediation": "设置 net.ipv4.conf.default.rp_filter = 1。",
+      "reference": "CIS 3.2.7",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.default.rp_filter",
+        "value": 1,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.default.rp_filter = 1",
+            "replace": "net.ipv4.conf.default.rp_filter = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-011",
+      "title": "隐藏内核符号地址",
+      "category": "内核加固",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "隐藏内核符号地址",
+      "remediation": "设置 kernel.kptr_restrict = 2，普通用户读取 /proc/kallsyms 时显示为 0。",
+      "reference": "CIS 1.5.1",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "kernel.kptr_restrict",
+        "value": 2,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "kernel.kptr_restrict = 2",
+            "replace": "kernel.kptr_restrict = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-012",
+      "title": "限制 dmesg 访问",
+      "category": "内核加固",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "限制 dmesg 访问",
+      "remediation": "设置 kernel.dmesg_restrict = 1，仅 root 可读取内核环形缓冲区。",
+      "reference": "CIS 1.5.2",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "kernel.dmesg_restrict",
+        "value": 1,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "kernel.dmesg_restrict = 1",
+            "replace": "kernel.dmesg_restrict = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-013",
+      "title": "开启地址空间随机化",
+      "category": "内核加固",
+      "severity": "high",
+      "kind": "sysctl",
+      "description": "开启地址空间随机化",
+      "remediation": "设置 kernel.randomize_va_space = 2，启用完整的 ASLR。",
+      "reference": "CIS 1.5.3",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "kernel.randomize_va_space",
+        "value": 2,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "kernel.randomize_va_space = 2",
+            "replace": "kernel.randomize_va_space = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-014",
+      "title": "禁用 SysRq 组合键",
+      "category": "内核加固",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "禁用 SysRq 组合键",
+      "remediation": "设置 kernel.sysrq = 0，防止控制台按键触发危险的内核操作。",
+      "reference": "CIS 1.5.4",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "kernel.sysrq",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "kernel.sysrq = 0",
+            "replace": "kernel.sysrq = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-015",
+      "title": "限制 perf 事件访问",
+      "category": "内核加固",
+      "severity": "low",
+      "kind": "sysctl",
+      "description": "限制 perf 事件访问",
+      "remediation": "设置 kernel.perf_event_paranoid >= 2，限制非特权用户使用性能计数器。",
+      "reference": "CIS 1.5.5",
+      "check": {
+        "type": "sysctlNumeric",
+        "key": "kernel.perf_event_paranoid",
+        "op": ">=",
+        "value": 2,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "kernel.perf_event_paranoid = 3",
+            "replace": "kernel.perf_event_paranoid = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-016",
+      "title": "启用硬链接保护",
+      "category": "内核加固",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "启用硬链接保护",
+      "remediation": "设置 fs.protected_hardlinks = 1，防止针对他人文件的硬链接攻击。",
+      "reference": "CIS 1.5.6",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "fs.protected_hardlinks",
+        "value": 1,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "fs.protected_hardlinks = 1",
+            "replace": "fs.protected_hardlinks = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-017",
+      "title": "启用符号链接保护",
+      "category": "内核加固",
+      "severity": "medium",
+      "kind": "sysctl",
+      "description": "启用符号链接保护",
+      "remediation": "设置 fs.protected_symlinks = 1，防止 /tmp 下的符号链接攻击。",
+      "reference": "CIS 1.5.7",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "fs.protected_symlinks",
+        "value": 1,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "fs.protected_symlinks = 1",
+            "replace": "fs.protected_symlinks = 0"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-018",
+      "title": "禁用 SUID 进程核心转储",
+      "category": "内核加固",
+      "severity": "low",
+      "kind": "sysctl",
+      "description": "禁用 SUID 进程核心转储",
+      "remediation": "设置 fs.suid_dumpable = 0，避免 SUID 进程内存被写入 core 文件。",
+      "reference": "CIS 1.5.8",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "fs.suid_dumpable",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "fs.suid_dumpable = 0",
+            "replace": "fs.suid_dumpable = 2"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    },
+    {
+      "id": "KERN-019",
+      "title": "不接受安全 ICMP 重定向",
+      "category": "网络内核",
+      "severity": "low",
+      "kind": "sysctl",
+      "description": "不接受安全 ICMP 重定向",
+      "remediation": "设置 net.ipv4.conf.all.secure_redirects = 0。",
+      "reference": "CIS 3.2.3",
+      "check": {
+        "type": "sysctlEquals",
+        "key": "net.ipv4.conf.all.secure_redirects",
+        "value": 0,
+        "absentMeans": "fail"
+      },
+      "samples": {
+        "pass": [],
+        "fail": [
+          {
+            "file": "/etc/sysctl.conf",
+            "find": "net.ipv4.conf.all.secure_redirects = 0",
+            "replace": "net.ipv4.conf.all.secure_redirects = 1"
+          }
+        ],
+        "passNote": "基础样例已满足该规则",
+        "failNote": "应用补丁后该规则应判定为不通过"
+      }
+    }
+  ]
+}

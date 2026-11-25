@@ -1,0 +1,30 @@
+{
+  "host": "edge-05",
+  "description": "边缘节点 · 全部检查项通过",
+  "files": [
+    {
+      "path": "/etc/ssh/sshd_config",
+      "content": "Port 22\nProtocol 2\nPermitRootLogin no\nPasswordAuthentication no\nPermitEmptyPasswords no\nMaxAuthTries 2\nLoginGraceTime 20\nClientAliveInterval 120\nClientAliveCountMax 2\nX11Forwarding no\nAllowTcpForwarding no\nAllowAgentForwarding no\nPermitTunnel no\nGatewayPorts no\nIgnoreRhosts yes\nHostbasedAuthentication no\nPermitUserEnvironment no\nUsePAM yes\nLogLevel VERBOSE\nBanner /etc/ssh/issue.net\nMaxSessions 8\nCiphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com\nMACs hmac-sha2-512-etm@openssh.com\nKexAlgorithms curve25519-sha256\n"
+    },
+    {
+      "path": "/etc/nginx/nginx.conf",
+      "content": "worker_processes 2;\n\nevents {\n    worker_connections 1024;\n}\n\nhttp {\n    server_tokens off;\n    ssl_protocols TLSv1.2 TLSv1.3;\n    ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;\n    ssl_prefer_server_ciphers on;\n    ssl_session_tickets off;\n    ssl_session_cache shared:SSL:5m;\n\n    include /etc/nginx/conf.d/*.conf;\n}\n"
+    },
+    {
+      "path": "/etc/nginx/conf.d/edge.conf",
+      "content": "server {\n    listen 443 ssl http2;\n    server_name edge.example.com;\n\n    ssl_certificate /etc/nginx/certs/edge.crt;\n    ssl_certificate_key /etc/nginx/certs/edge.key;\n\n    add_header Strict-Transport-Security \"max-age=63072000; includeSubDomains; preload\" always;\n    add_header X-Content-Type-Options \"nosniff\" always;\n    add_header X-Frame-Options \"DENY\" always;\n    add_header Referrer-Policy \"no-referrer\" always;\n    add_header Content-Security-Policy \"default-src 'self'; frame-ancestors 'none'\" always;\n\n    location /api/ {\n        autoindex off;\n        proxy_pass http://10.0.0.20:8080;\n    }\n}\n"
+    },
+    {
+      "path": "/etc/nginx/certs/edge.crt",
+      "content": "-----BEGIN CERTIFICATE-----\nMIIDazCCAlOgAwIBAgIUZGVtby0edge0500MA0GCSqGSIb3DQEBCwUA\n-----END CERTIFICATE-----\n"
+    },
+    {
+      "path": "/etc/nginx/certs/edge.key",
+      "content": "-----BEGIN CERTIFICATE-----\nMIIDazCCAlOgAwIBAgIUZGVtby0edge0500MA0GCSqGSIb3DQEBCwUA\n-----END CERTIFICATE-----\n"
+    },
+    {
+      "path": "/etc/sysctl.conf",
+      "content": "net.ipv4.ip_forward = 0\nnet.ipv4.conf.all.accept_source_route = 0\nnet.ipv4.conf.default.accept_source_route = 0\nnet.ipv4.conf.all.accept_redirects = 0\nnet.ipv4.conf.default.accept_redirects = 0\nnet.ipv4.conf.all.send_redirects = 0\nnet.ipv4.conf.all.log_martians = 1\nnet.ipv4.tcp_syncookies = 1\nnet.ipv4.conf.all.rp_filter = 1\nnet.ipv4.conf.default.rp_filter = 1\nkernel.kptr_restrict = 2\nkernel.dmesg_restrict = 1\nkernel.randomize_va_space = 2\nkernel.sysrq = 0\nkernel.perf_event_paranoid = 2\nfs.protected_hardlinks = 1\nfs.protected_symlinks = 1\nfs.suid_dumpable = 0\nnet.ipv4.conf.all.secure_redirects = 0\n"
+    }
+  ]
+}

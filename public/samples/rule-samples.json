@@ -1,0 +1,1275 @@
+[
+  {
+    "id": "SSH-001",
+    "title": "禁止 root 直接登录",
+    "kind": "sshd",
+    "severity": "critical",
+    "category": "SSH 访问控制",
+    "reference": "CIS 5.2.8 · 等保 8.1.4.1",
+    "check": {
+      "type": "sshdValue",
+      "key": "PermitRootLogin",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "PermitRootLogin no",
+        "replace": "PermitRootLogin yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-002",
+    "title": "禁用密码认证，仅允许公钥",
+    "kind": "sshd",
+    "severity": "critical",
+    "category": "SSH 认证",
+    "reference": "CIS 5.2.10 · 等保 8.1.4.2",
+    "check": {
+      "type": "sshdValue",
+      "key": "PasswordAuthentication",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "PasswordAuthentication no",
+        "replace": "PasswordAuthentication yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-003",
+    "title": "禁止空口令登录",
+    "kind": "sshd",
+    "severity": "critical",
+    "category": "SSH 认证",
+    "reference": "CIS 5.2.9",
+    "check": {
+      "type": "sshdValue",
+      "key": "PermitEmptyPasswords",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "PermitEmptyPasswords no",
+        "replace": "PermitEmptyPasswords yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-004",
+    "title": "最大认证尝试次数不超过 4",
+    "kind": "sshd",
+    "severity": "high",
+    "category": "SSH 认证",
+    "reference": "CIS 5.2.5",
+    "check": {
+      "type": "sshdNumeric",
+      "key": "MaxAuthTries",
+      "op": "<=",
+      "value": 4,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "MaxAuthTries 3",
+        "replace": "MaxAuthTries 8"
+      }
+    ]
+  },
+  {
+    "id": "SSH-005",
+    "title": "登录宽限时间不超过 60 秒",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 认证",
+    "reference": "CIS 5.2.18",
+    "check": {
+      "type": "sshdNumeric",
+      "key": "LoginGraceTime",
+      "op": "<=",
+      "value": 60,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "LoginGraceTime 30",
+        "replace": "LoginGraceTime 120"
+      }
+    ]
+  },
+  {
+    "id": "SSH-006",
+    "title": "ClientAliveInterval 不超过 300 秒",
+    "kind": "sshd",
+    "severity": "low",
+    "category": "SSH 会话",
+    "reference": "CIS 5.2.16",
+    "check": {
+      "type": "sshdNumeric",
+      "key": "ClientAliveInterval",
+      "op": "<=",
+      "value": 300,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "ClientAliveInterval 300",
+        "replace": "ClientAliveInterval 900"
+      }
+    ]
+  },
+  {
+    "id": "SSH-007",
+    "title": "ClientAliveInterval 必须启用",
+    "kind": "sshd",
+    "severity": "low",
+    "category": "SSH 会话",
+    "reference": "CIS 5.2.16",
+    "check": {
+      "type": "sshdNumeric",
+      "key": "ClientAliveInterval",
+      "op": ">",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "ClientAliveInterval 300",
+        "replace": "ClientAliveInterval 0"
+      }
+    ]
+  },
+  {
+    "id": "SSH-008",
+    "title": "ClientAliveCountMax 不超过 3",
+    "kind": "sshd",
+    "severity": "low",
+    "category": "SSH 会话",
+    "reference": "CIS 5.2.17",
+    "check": {
+      "type": "sshdNumeric",
+      "key": "ClientAliveCountMax",
+      "op": "<=",
+      "value": 3,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "ClientAliveCountMax 3",
+        "replace": "ClientAliveCountMax 6"
+      }
+    ]
+  },
+  {
+    "id": "SSH-009",
+    "title": "禁用 X11 转发",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 功能限制",
+    "reference": "CIS 5.2.6",
+    "check": {
+      "type": "sshdValue",
+      "key": "X11Forwarding",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "X11Forwarding no",
+        "replace": "X11Forwarding yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-010",
+    "title": "禁用 TCP 转发",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 功能限制",
+    "reference": "CIS 5.2.21",
+    "check": {
+      "type": "sshdValue",
+      "key": "AllowTcpForwarding",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "AllowTcpForwarding no",
+        "replace": "AllowTcpForwarding yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-011",
+    "title": "禁用 SSH 隧道",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 功能限制",
+    "reference": "CIS 5.2.22",
+    "check": {
+      "type": "sshdValue",
+      "key": "PermitTunnel",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "PermitTunnel no",
+        "replace": "PermitTunnel yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-012",
+    "title": "禁用 Agent 转发",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 功能限制",
+    "reference": "CIS 5.2.20",
+    "check": {
+      "type": "sshdValue",
+      "key": "AllowAgentForwarding",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "AllowAgentForwarding no",
+        "replace": "AllowAgentForwarding yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-013",
+    "title": "禁用非安全加密算法",
+    "kind": "sshd",
+    "severity": "high",
+    "category": "SSH 加密",
+    "reference": "CIS 5.2.12",
+    "check": {
+      "type": "sshdListExcludes",
+      "key": "Ciphers",
+      "forbidden": [
+        "3des-cbc",
+        "aes128-cbc",
+        "aes192-cbc",
+        "aes256-cbc",
+        "arcfour",
+        "arcfour128",
+        "arcfour256",
+        "blowfish-cbc",
+        "cast128-cbc"
+      ]
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com",
+        "replace": "Ciphers 3des-cbc,aes128-cbc,aes256-gcm@openssh.com"
+      }
+    ]
+  },
+  {
+    "id": "SSH-014",
+    "title": "禁用弱 MAC 算法",
+    "kind": "sshd",
+    "severity": "high",
+    "category": "SSH 加密",
+    "reference": "CIS 5.2.13",
+    "check": {
+      "type": "sshdListExcludes",
+      "key": "MACs",
+      "forbidden": [
+        "hmac-md5",
+        "hmac-md5-96",
+        "hmac-sha1",
+        "hmac-sha1-96",
+        "hmac-ripemd160",
+        "umac-64@openssh.com"
+      ]
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com",
+        "replace": "MACs hmac-md5,hmac-sha1,hmac-sha2-256-etm@openssh.com"
+      }
+    ]
+  },
+  {
+    "id": "SSH-015",
+    "title": "禁用基于 SHA1 的密钥交换",
+    "kind": "sshd",
+    "severity": "high",
+    "category": "SSH 加密",
+    "reference": "CIS 5.2.14",
+    "check": {
+      "type": "sshdListExcludes",
+      "key": "KexAlgorithms",
+      "forbidden": [
+        "diffie-hellman-group1-sha1",
+        "diffie-hellman-group14-sha1",
+        "diffie-hellman-group-exchange-sha1",
+        "gss-group1-sha1"
+      ]
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512",
+        "replace": "KexAlgorithms diffie-hellman-group1-sha1,diffie-hellman-group14-sha1,curve25519-sha256"
+      }
+    ]
+  },
+  {
+    "id": "SSH-016",
+    "title": "配置登录警告 Banner",
+    "kind": "sshd",
+    "severity": "low",
+    "category": "SSH 访问控制",
+    "reference": "CIS 5.2.19 · 等保 8.1.4.1",
+    "check": {
+      "type": "sshdValue",
+      "key": "Banner",
+      "matches": "^(?!(none|NONE)$).+"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "Banner /etc/ssh/issue.net",
+        "replace": "Banner none"
+      }
+    ]
+  },
+  {
+    "id": "SSH-017",
+    "title": "日志级别为 VERBOSE 或更高",
+    "kind": "sshd",
+    "severity": "low",
+    "category": "SSH 审计",
+    "reference": "CIS 5.2.4",
+    "check": {
+      "type": "sshdValue",
+      "key": "LogLevel",
+      "in": [
+        "VERBOSE",
+        "INFO",
+        "DEBUG",
+        "DEBUG1",
+        "DEBUG2",
+        "DEBUG3"
+      ]
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "LogLevel VERBOSE",
+        "replace": "LogLevel QUIET"
+      }
+    ]
+  },
+  {
+    "id": "SSH-018",
+    "title": "禁用基于主机的认证",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 认证",
+    "reference": "CIS 5.2.11",
+    "check": {
+      "type": "sshdValue",
+      "key": "HostbasedAuthentication",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "HostbasedAuthentication no",
+        "replace": "HostbasedAuthentication yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-019",
+    "title": "忽略 .rhosts 信任文件",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 认证",
+    "reference": "CIS 5.2.7",
+    "check": {
+      "type": "sshdValue",
+      "key": "IgnoreRhosts",
+      "in": [
+        "yes"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "IgnoreRhosts yes",
+        "replace": "IgnoreRhosts no"
+      }
+    ]
+  },
+  {
+    "id": "SSH-020",
+    "title": "禁止加载用户环境变量",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 访问控制",
+    "reference": "CIS 5.2.15",
+    "check": {
+      "type": "sshdValue",
+      "key": "PermitUserEnvironment",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "PermitUserEnvironment no",
+        "replace": "PermitUserEnvironment yes"
+      }
+    ]
+  },
+  {
+    "id": "SSH-021",
+    "title": "限制单连接最大会话数",
+    "kind": "sshd",
+    "severity": "low",
+    "category": "SSH 会话",
+    "reference": "CIS 5.2.23",
+    "check": {
+      "type": "sshdNumeric",
+      "key": "MaxSessions",
+      "op": "<=",
+      "value": 10,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "MaxSessions 10",
+        "replace": "MaxSessions 32"
+      }
+    ]
+  },
+  {
+    "id": "SSH-022",
+    "title": "网关端口保持默认关闭",
+    "kind": "sshd",
+    "severity": "medium",
+    "category": "SSH 功能限制",
+    "reference": "CIS 5.2.24",
+    "check": {
+      "type": "sshdValue",
+      "key": "GatewayPorts",
+      "in": [
+        "no"
+      ],
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/ssh/sshd_config",
+        "find": "GatewayPorts no",
+        "replace": "GatewayPorts yes"
+      }
+    ]
+  },
+  {
+    "id": "NGX-001",
+    "title": "关闭 server_tokens 版本泄露",
+    "kind": "nginx",
+    "severity": "medium",
+    "category": "代理指纹",
+    "reference": "等保 8.1.4.3",
+    "check": {
+      "type": "nginxServerValue",
+      "key": "server_tokens",
+      "equals": "off",
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/nginx.conf",
+        "find": "server_tokens off;",
+        "replace": "server_tokens on;"
+      }
+    ]
+  },
+  {
+    "id": "NGX-002",
+    "title": "仅启用 TLS 1.2 与 TLS 1.3",
+    "kind": "nginx",
+    "severity": "high",
+    "category": "TLS 配置",
+    "reference": "CIS 4.1 · 等保 8.1.4.4",
+    "check": {
+      "type": "nginxServerValue",
+      "key": "ssl_protocols",
+      "subsetOf": [
+        "TLSv1.2",
+        "TLSv1.3"
+      ],
+      "scope": "ssl",
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/nginx.conf",
+        "find": "ssl_protocols TLSv1.2 TLSv1.3;",
+        "replace": "ssl_protocols TLSv1 TLSv1.1 TLSv1.2;"
+      }
+    ]
+  },
+  {
+    "id": "NGX-003",
+    "title": "禁用弱 TLS 套件",
+    "kind": "nginx",
+    "severity": "high",
+    "category": "TLS 配置",
+    "reference": "CIS 4.2 · 等保 8.1.4.4",
+    "check": {
+      "type": "nginxServerCipher",
+      "key": "ssl_ciphers",
+      "scope": "ssl",
+      "forbidden": [
+        "RC4",
+        "3DES",
+        "DES-CBC3",
+        "MD5",
+        "NULL",
+        "EXPORT",
+        "aNULL",
+        "eNULL",
+        "AES128-SHA",
+        "AES256-SHA"
+      ]
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/nginx.conf",
+        "find": "ssl_ciphers ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;",
+        "replace": "ssl_ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-SHA:DES-CBC3-SHA:RC4-SHA;"
+      }
+    ]
+  },
+  {
+    "id": "NGX-004",
+    "title": "优先使用服务端套件顺序",
+    "kind": "nginx",
+    "severity": "low",
+    "category": "TLS 配置",
+    "reference": "CIS 4.3",
+    "check": {
+      "type": "nginxServerValue",
+      "key": "ssl_prefer_server_ciphers",
+      "equals": "on",
+      "scope": "ssl",
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/nginx.conf",
+        "find": "ssl_prefer_server_ciphers on;",
+        "replace": "ssl_prefer_server_ciphers off;"
+      }
+    ]
+  },
+  {
+    "id": "NGX-005",
+    "title": "关闭 TLS 会话票据",
+    "kind": "nginx",
+    "severity": "low",
+    "category": "TLS 配置",
+    "reference": "CIS 4.4",
+    "check": {
+      "type": "nginxServerValue",
+      "key": "ssl_session_tickets",
+      "equals": "off",
+      "scope": "ssl",
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/nginx.conf",
+        "find": "ssl_session_tickets off;",
+        "replace": "ssl_session_tickets on;"
+      }
+    ]
+  },
+  {
+    "id": "NGX-006",
+    "title": "启用 TLS 会话缓存",
+    "kind": "nginx",
+    "severity": "info",
+    "category": "TLS 配置",
+    "reference": "性能与容量基线",
+    "check": {
+      "type": "nginxServerValue",
+      "key": "ssl_session_cache",
+      "matches": "shared:",
+      "scope": "ssl",
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/nginx.conf",
+        "find": "ssl_session_cache shared:SSL:10m;",
+        "replace": "ssl_session_cache off;"
+      }
+    ]
+  },
+  {
+    "id": "NGX-007",
+    "title": "配置 HSTS 响应头",
+    "kind": "nginx",
+    "severity": "high",
+    "category": "代理安全头",
+    "reference": "OWASP · 等保 8.1.4.4",
+    "check": {
+      "type": "nginxServerHeader",
+      "name": "Strict-Transport-Security",
+      "valueMatches": "max-age=\\d{8,}",
+      "scope": "ssl"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/conf.d/site.conf",
+        "find": "add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+        "replace": ""
+      }
+    ]
+  },
+  {
+    "id": "NGX-008",
+    "title": "配置 X-Frame-Options 防点击劫持",
+    "kind": "nginx",
+    "severity": "medium",
+    "category": "代理安全头",
+    "reference": "OWASP · 等保 8.1.4.3",
+    "check": {
+      "type": "nginxServerHeader",
+      "name": "X-Frame-Options",
+      "valueMatches": "^(SAMEORIGIN|DENY)$"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/conf.d/site.conf",
+        "find": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+        "replace": ""
+      }
+    ]
+  },
+  {
+    "id": "NGX-009",
+    "title": "配置 X-Content-Type-Options",
+    "kind": "nginx",
+    "severity": "medium",
+    "category": "代理安全头",
+    "reference": "OWASP",
+    "check": {
+      "type": "nginxServerHeader",
+      "name": "X-Content-Type-Options",
+      "valueMatches": "^nosniff$"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/conf.d/site.conf",
+        "find": "add_header X-Content-Type-Options \"nosniff\" always;",
+        "replace": ""
+      }
+    ]
+  },
+  {
+    "id": "NGX-010",
+    "title": "配置内容安全策略 CSP",
+    "kind": "nginx",
+    "severity": "low",
+    "category": "代理安全头",
+    "reference": "OWASP",
+    "check": {
+      "type": "nginxServerHeader",
+      "name": "Content-Security-Policy",
+      "valueMatches": "default-src"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/conf.d/site.conf",
+        "find": "add_header Content-Security-Policy \"default-src 'self'; frame-ancestors 'self'\" always;",
+        "replace": ""
+      }
+    ]
+  },
+  {
+    "id": "NGX-011",
+    "title": "配置 Referrer-Policy",
+    "kind": "nginx",
+    "severity": "low",
+    "category": "代理安全头",
+    "reference": "OWASP",
+    "check": {
+      "type": "nginxServerHeader",
+      "name": "Referrer-Policy",
+      "valueMatches": "^(strict-origin-when-cross-origin|no-referrer|strict-origin)$"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/conf.d/site.conf",
+        "find": "add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;",
+        "replace": ""
+      }
+    ]
+  },
+  {
+    "id": "NGX-012",
+    "title": "关闭目录自动索引",
+    "kind": "nginx",
+    "severity": "medium",
+    "category": "代理访问控制",
+    "reference": "等保 8.1.4.3",
+    "check": {
+      "type": "nginxLocationValue",
+      "key": "autoindex",
+      "equals": "off",
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/conf.d/site.conf",
+        "find": "autoindex off;\n        proxy_pass",
+        "replace": "autoindex on;\n        proxy_pass"
+      }
+    ]
+  },
+  {
+    "id": "NGX-013",
+    "title": "证书文件必须真实存在",
+    "kind": "nginx",
+    "severity": "high",
+    "category": "TLS 配置",
+    "reference": "运行可靠性基线",
+    "check": {
+      "type": "nginxServerFile",
+      "key": "ssl_certificate",
+      "scope": "ssl"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/conf.d/site.conf",
+        "find": "/etc/nginx/certs/app.crt",
+        "replace": "/etc/nginx/certs/missing.crt"
+      }
+    ]
+  },
+  {
+    "id": "NGX-014",
+    "title": "conf.d 下不应存在未加载的文件",
+    "kind": "nginx",
+    "severity": "info",
+    "category": "配置整洁度",
+    "reference": "配置管理基线",
+    "check": {
+      "type": "nginxOrphanIncludes",
+      "dir": "/etc/nginx/conf.d"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/nginx/conf.d/legacy.conf.disabled",
+        "append": "server {\n    listen 80;\n    server_name legacy.example.com;\n}\n"
+      }
+    ]
+  },
+  {
+    "id": "KERN-001",
+    "title": "关闭 IPv4 转发",
+    "kind": "sysctl",
+    "severity": "high",
+    "category": "网络内核",
+    "reference": "CIS 3.1.1",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.ip_forward",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.ip_forward = 0",
+        "replace": "net.ipv4.ip_forward = 1"
+      }
+    ]
+  },
+  {
+    "id": "KERN-002",
+    "title": "拒绝源路由（all）",
+    "kind": "sysctl",
+    "severity": "high",
+    "category": "网络内核",
+    "reference": "CIS 3.2.1",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.all.accept_source_route",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.all.accept_source_route = 0",
+        "replace": "net.ipv4.conf.all.accept_source_route = 1"
+      }
+    ]
+  },
+  {
+    "id": "KERN-003",
+    "title": "拒绝源路由（default）",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "网络内核",
+    "reference": "CIS 3.2.2",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.default.accept_source_route",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.default.accept_source_route = 0",
+        "replace": "net.ipv4.conf.default.accept_source_route = 1"
+      }
+    ]
+  },
+  {
+    "id": "KERN-004",
+    "title": "拒绝 ICMP 重定向（all）",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "网络内核",
+    "reference": "CIS 3.2.3",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.all.accept_redirects",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.all.accept_redirects = 0",
+        "replace": "net.ipv4.conf.all.accept_redirects = 1"
+      }
+    ]
+  },
+  {
+    "id": "KERN-005",
+    "title": "拒绝 ICMP 重定向（default）",
+    "kind": "sysctl",
+    "severity": "low",
+    "category": "网络内核",
+    "reference": "CIS 3.2.4",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.default.accept_redirects",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.default.accept_redirects = 0",
+        "replace": "net.ipv4.conf.default.accept_redirects = 1"
+      }
+    ]
+  },
+  {
+    "id": "KERN-006",
+    "title": "不发送 ICMP 重定向",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "网络内核",
+    "reference": "CIS 3.2.5",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.all.send_redirects",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.all.send_redirects = 0",
+        "replace": "net.ipv4.conf.all.send_redirects = 1"
+      }
+    ]
+  },
+  {
+    "id": "KERN-007",
+    "title": "记录异常源地址数据包",
+    "kind": "sysctl",
+    "severity": "low",
+    "category": "网络内核",
+    "reference": "CIS 3.2.6",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.all.log_martians",
+      "value": 1,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.all.log_martians = 1",
+        "replace": "net.ipv4.conf.all.log_martians = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-008",
+    "title": "开启 SYN Cookie",
+    "kind": "sysctl",
+    "severity": "high",
+    "category": "网络内核",
+    "reference": "CIS 3.2.8",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.tcp_syncookies",
+      "value": 1,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.tcp_syncookies = 1",
+        "replace": "net.ipv4.tcp_syncookies = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-009",
+    "title": "开启反向路径过滤（all）",
+    "kind": "sysctl",
+    "severity": "high",
+    "category": "网络内核",
+    "reference": "CIS 3.2.7",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.all.rp_filter",
+      "value": 1,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.all.rp_filter = 1",
+        "replace": "net.ipv4.conf.all.rp_filter = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-010",
+    "title": "开启反向路径过滤（default）",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "网络内核",
+    "reference": "CIS 3.2.7",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.default.rp_filter",
+      "value": 1,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.default.rp_filter = 1",
+        "replace": "net.ipv4.conf.default.rp_filter = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-011",
+    "title": "隐藏内核符号地址",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "内核加固",
+    "reference": "CIS 1.5.1",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "kernel.kptr_restrict",
+      "value": 2,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "kernel.kptr_restrict = 2",
+        "replace": "kernel.kptr_restrict = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-012",
+    "title": "限制 dmesg 访问",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "内核加固",
+    "reference": "CIS 1.5.2",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "kernel.dmesg_restrict",
+      "value": 1,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "kernel.dmesg_restrict = 1",
+        "replace": "kernel.dmesg_restrict = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-013",
+    "title": "开启地址空间随机化",
+    "kind": "sysctl",
+    "severity": "high",
+    "category": "内核加固",
+    "reference": "CIS 1.5.3",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "kernel.randomize_va_space",
+      "value": 2,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "kernel.randomize_va_space = 2",
+        "replace": "kernel.randomize_va_space = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-014",
+    "title": "禁用 SysRq 组合键",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "内核加固",
+    "reference": "CIS 1.5.4",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "kernel.sysrq",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "kernel.sysrq = 0",
+        "replace": "kernel.sysrq = 1"
+      }
+    ]
+  },
+  {
+    "id": "KERN-015",
+    "title": "限制 perf 事件访问",
+    "kind": "sysctl",
+    "severity": "low",
+    "category": "内核加固",
+    "reference": "CIS 1.5.5",
+    "check": {
+      "type": "sysctlNumeric",
+      "key": "kernel.perf_event_paranoid",
+      "op": ">=",
+      "value": 2,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "kernel.perf_event_paranoid = 3",
+        "replace": "kernel.perf_event_paranoid = 1"
+      }
+    ]
+  },
+  {
+    "id": "KERN-016",
+    "title": "启用硬链接保护",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "内核加固",
+    "reference": "CIS 1.5.6",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "fs.protected_hardlinks",
+      "value": 1,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "fs.protected_hardlinks = 1",
+        "replace": "fs.protected_hardlinks = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-017",
+    "title": "启用符号链接保护",
+    "kind": "sysctl",
+    "severity": "medium",
+    "category": "内核加固",
+    "reference": "CIS 1.5.7",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "fs.protected_symlinks",
+      "value": 1,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "fs.protected_symlinks = 1",
+        "replace": "fs.protected_symlinks = 0"
+      }
+    ]
+  },
+  {
+    "id": "KERN-018",
+    "title": "禁用 SUID 进程核心转储",
+    "kind": "sysctl",
+    "severity": "low",
+    "category": "内核加固",
+    "reference": "CIS 1.5.8",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "fs.suid_dumpable",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "fs.suid_dumpable = 0",
+        "replace": "fs.suid_dumpable = 2"
+      }
+    ]
+  },
+  {
+    "id": "KERN-019",
+    "title": "不接受安全 ICMP 重定向",
+    "kind": "sysctl",
+    "severity": "low",
+    "category": "网络内核",
+    "reference": "CIS 3.2.3",
+    "check": {
+      "type": "sysctlEquals",
+      "key": "net.ipv4.conf.all.secure_redirects",
+      "value": 0,
+      "absentMeans": "fail"
+    },
+    "passSample": [],
+    "failSample": [
+      {
+        "file": "/etc/sysctl.conf",
+        "find": "net.ipv4.conf.all.secure_redirects = 0",
+        "replace": "net.ipv4.conf.all.secure_redirects = 1"
+      }
+    ]
+  }
+]
